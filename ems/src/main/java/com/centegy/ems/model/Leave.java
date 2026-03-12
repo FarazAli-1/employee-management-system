@@ -15,7 +15,6 @@ public class Leave {
     private LocalDate startDate;
     @NotNull
     private LocalDate endDate;
-    @NotBlank
     private String status; // PENDING, APPROVED, REJECTED
     @NotNull
     private Integer employeeId;

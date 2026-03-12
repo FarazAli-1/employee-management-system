@@ -33,6 +33,11 @@ public class LeaveController {
         return leaveService.getLeaveById(id);
     }
 
+    @GetMapping("/employee/{EId}")
+    public List<Leave> getLeaveByEmployeeId(@PathVariable Integer EId) {
+        return leaveService.getAllLeavesByEmployeeId(EId);
+    }
+
     @PutMapping("/{id}")
     public Leave updateLeave(@PathVariable Integer id, @Valid @RequestBody Leave leave) {
         return leaveService.updateLeave(id, leave);
@@ -47,4 +52,6 @@ public class LeaveController {
     public Leave approveLeave(@PathVariable Integer id, @RequestParam Integer managerId) {
         return leaveService.approveLeave(id, managerId);
     }
+
+
 }

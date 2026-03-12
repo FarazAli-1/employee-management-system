@@ -1,6 +1,7 @@
 package com.centegy.ems.service;
 
 
+import com.centegy.ems.model.Employee;
 import com.centegy.ems.model.Leave;
 import com.centegy.ems.repository.LeaveRepository;
 import org.springframework.stereotype.Service;
@@ -11,10 +12,15 @@ import java.util.List;
 public class LeaveService {
 
     private final LeaveRepository leaveRepository;
+    private final EmployeeService employeeService;
 
-    public LeaveService(LeaveRepository leaveRepository) {
+
+    public LeaveService(LeaveRepository leaveRepository, EmployeeService employeeService) {
         this.leaveRepository = leaveRepository;
+        this.employeeService = employeeService;
     }
+
+
 
     public Leave applyForLeave(Leave leave) {
         if(leave.getStatus() == null || leave.getStatus().isBlank()) {
@@ -35,6 +41,7 @@ public class LeaveService {
     public Leave updateLeave(Integer id, Leave updatedData) {
         Leave existing = getLeaveById(id);
 
+
         existing.setLeaveType(updatedData.getLeaveType());
         existing.setStartDate(updatedData.getStartDate());
         existing.setEndDate(updatedData.getEndDate());
@@ -53,10 +60,19 @@ public class LeaveService {
 
     public Leave approveLeave(Integer id, Integer managerId) {
         Leave leave = getLeaveById(id);
+        Employee requester = employeeService.getEmployeeByID(leave.getEmployeeId());
+
+        if (requester.getManagerId() == null || !requester.getManagerId().equals(managerId)) {
+            throw new RuntimeException("Unauthorized: Only the employee's assigned manager can approve this leave.");
+        }
 
         leave.setStatus("APPROVED");
         leave.setApprovedBy(managerId);
         return leaveRepository.save(leave);
+    }
+
+    public List<Leave> getAllLeavesByEmployeeId(Integer employeeId) {
+        return leaveRepository.getLeavesListByEmployee(employeeId);
     }
 
 }
