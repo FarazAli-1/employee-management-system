@@ -1,11 +1,11 @@
 package com.centegy.ems.repository;
 
-
 import com.centegy.ems.model.Employee;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
@@ -36,6 +36,15 @@ public class EmployeeRepository {
 
         return employee;
 
+    }
+
+    public Optional<Employee> findById(Integer id) {
+        for (Employee employee : employeeList) {
+            if (employee.getId().equals(id)) {
+                return Optional.of(employee);
+            }
+        }
+        return Optional.empty();
     }
 
     public boolean deleteById(Integer id) {

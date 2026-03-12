@@ -2,6 +2,7 @@ package com.centegy.ems.controller;
 
 import com.centegy.ems.model.Role;
 import com.centegy.ems.service.RoleService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class RoleController {
     }
 
     @PostMapping
-    public Role createRole(@RequestBody Role role) {
+    public Role createRole(@Valid @RequestBody Role role) {
         return roleService.createRole(role);
     }
 
