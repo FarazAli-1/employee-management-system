@@ -3,9 +3,11 @@ package com.centegy.ems.service;
 
 import com.centegy.ems.model.Employee;
 import com.centegy.ems.model.Leave;
+import com.centegy.ems.model.LeaveBalance;
 import com.centegy.ems.repository.LeaveRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -23,6 +25,18 @@ public class LeaveService {
 
 
     public Leave applyForLeave(Leave leave) {
+
+        long daysRequested = calculateDays(leave.getStartDate(),leave.getEndDate());
+
+        LeaveBalance balance = leaveRepository.getBalanceByEmployeeId(leave.getEmployeeId(), leave.getLeaveType())
+                .orElseThrow(() -> new RuntimeException("Leave Balance not found for this employee!"));
+
+
+        if (balance.getRemainingDays() < daysRequested) {
+            throw new RuntimeException("Insufficient Leave Balance! You requested " + daysRequested +
+                    " days but only have " + balance.getRemainingDays() + " remaining.");
+        }
+
         if(leave.getStatus() == null || leave.getStatus().isBlank()) {
             leave.setStatus("PENDING");
         }
@@ -66,6 +80,13 @@ public class LeaveService {
             throw new RuntimeException("Unauthorized: Only the employee's assigned manager can approve this leave.");
         }
 
+        long daysRequested = calculateDays(leave.getStartDate(), leave.getEndDate());
+        LeaveBalance balance = leaveRepository.getBalanceByEmployeeId(requester.getId(),  leave.getLeaveType())
+                .orElseThrow(() -> new RuntimeException("Leave Balance not found!"));
+
+        balance.setRemainingDays(balance.getRemainingDays()- (int) daysRequested);
+
+
         leave.setStatus("APPROVED");
         leave.setApprovedBy(managerId);
         return leaveRepository.save(leave);
@@ -73,6 +94,11 @@ public class LeaveService {
 
     public List<Leave> getAllLeavesByEmployeeId(Integer employeeId) {
         return leaveRepository.getLeavesListByEmployee(employeeId);
+    }
+
+
+    private long calculateDays(LocalDate start, LocalDate end) {
+        return end.toEpochDay() - start.toEpochDay() + 1;
     }
 
 }

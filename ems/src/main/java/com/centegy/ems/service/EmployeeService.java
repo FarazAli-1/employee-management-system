@@ -1,7 +1,9 @@
 package com.centegy.ems.service;
 
 import com.centegy.ems.model.Employee;
+import com.centegy.ems.model.LeaveBalance;
 import com.centegy.ems.repository.EmployeeRepository;
+import com.centegy.ems.repository.LeaveRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,13 +12,40 @@ import java.util.List;
 public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final LeaveRepository leaveRepository;
 
-    public EmployeeService(EmployeeRepository employeeRepository) {
+    public EmployeeService(EmployeeRepository employeeRepository, LeaveRepository leaveRepository) {
         this.employeeRepository = employeeRepository;
+        this.leaveRepository = leaveRepository;
     }
 
+
     public Employee addEmployee(Employee employee) {
-        return employeeRepository.save(employee);
+
+        Employee newEmployee = employeeRepository.save(employee);
+
+        // Annual Leave
+        LeaveBalance annual = new LeaveBalance();
+        annual.setEmployeeId(newEmployee.getId());
+        annual.setLeaveType("ANNUAL");
+        annual.setRemainingDays(20);
+        leaveRepository.saveBalance(annual);
+
+        // Sick Leave
+        LeaveBalance sick = new LeaveBalance();
+        sick.setEmployeeId(newEmployee.getId());
+        sick.setLeaveType("SICK");
+        sick.setRemainingDays(10);
+        leaveRepository.saveBalance(sick);
+
+        // Casual Leave
+        LeaveBalance casual = new LeaveBalance();
+        casual.setEmployeeId(newEmployee.getId());
+        casual.setLeaveType("CASUAL");
+        casual.setRemainingDays(5);
+        leaveRepository.saveBalance(casual);
+
+        return newEmployee;
     }
 
     public List<Employee> getAllEmployees() {

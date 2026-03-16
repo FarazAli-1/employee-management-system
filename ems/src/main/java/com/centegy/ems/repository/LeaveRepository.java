@@ -1,9 +1,8 @@
 package com.centegy.ems.repository;
 
 
-import com.centegy.ems.model.Employee;
 import com.centegy.ems.model.Leave;
-import com.centegy.ems.service.EmployeeService;
+import com.centegy.ems.model.LeaveBalance;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -15,6 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LeaveRepository {
 
     private final List<Leave> leavesList = new ArrayList<>();
+
+    private final List<LeaveBalance>  balanceList = new ArrayList<>();
 
     private final AtomicInteger counter = new AtomicInteger(0);
 
@@ -66,5 +67,17 @@ public class LeaveRepository {
         }
         return employeeLeaves;
     }
+
+    public Optional<LeaveBalance> getBalanceByEmployeeId(Integer employeeId, String leaveType) {
+        return balanceList.stream()
+                .filter(b -> b.getEmployeeId().equals(employeeId) &&  b.getLeaveType().equalsIgnoreCase(leaveType))
+                .findFirst();
+    }
+
+    public void saveBalance(LeaveBalance balance) {
+        balanceList.add(balance);
+    }
+
+
 
 }

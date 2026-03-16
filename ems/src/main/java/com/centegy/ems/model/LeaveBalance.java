@@ -10,6 +10,9 @@ public class LeaveBalance {
     private String leaveType;
     @Min(0)
     private int remainingDays;
+    @NotNull
+    private Integer employeeId;
+
 
     public LeaveBalance(){}  //no-arg const needed for spring boot
 
@@ -18,6 +21,7 @@ public class LeaveBalance {
         this.leaveType = leaveType;
         this.remainingDays = remainingDays;
     }
+
 
 
     public int getRemainingDays() {
@@ -36,4 +40,11 @@ public class LeaveBalance {
         this.leaveType = leaveType;
     }
 
+    public Integer getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(Integer employeeId) {
+        this.employeeId = employeeId;
+    }
 }
