@@ -18,6 +18,8 @@ public class Asset {
     @NotNull
     private Integer employeeId;
 
+    private Integer approvedBy;
+
     public Asset() {}
 
 
@@ -59,5 +61,13 @@ public class Asset {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Integer getApprovedBy() {
+        return approvedBy;
+    }
+
+    public void setApprovedBy(Integer approvedBy) {
+        this.approvedBy = approvedBy;
     }
 }

@@ -37,6 +37,16 @@ public class AssetController {
         return assetService.updateAsset(id, asset);
     }
 
+    @PutMapping("/{id}/return")
+    public Asset returnAsset(@PathVariable Integer id, @Valid @RequestParam Integer employeeId) {
+        return assetService.returnAsset(id, employeeId);
+    }
+
+    @PutMapping("/{id}/approve")
+    public Asset approveAsset(@PathVariable Integer id, @Valid @RequestParam Integer adminId) {
+        return assetService.approveAsset(id, adminId);
+    }
+
     @DeleteMapping("/{id}")
     public void deleteAsset(@PathVariable Integer id) {
         assetService.deleteAsset(id);
