@@ -8,6 +8,7 @@ import com.centegy.ems.repository.LeaveRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -96,6 +97,39 @@ public class LeaveService {
         return leaveRepository.getLeavesListByEmployee(employeeId);
     }
 
+    public List<Leave> leaveCalender(Integer requesterId) {
+
+        Employee requester = employeeService.getEmployeeByID(requesterId);
+        int teamBossId;
+
+        if (requester.getManagerId() != null) {
+            teamBossId = requester.getManagerId();
+        } else {
+            teamBossId = requester.getId();
+        }
+
+        List<Integer> teamIds = new ArrayList<>();
+        teamIds.add(teamBossId);
+        List<Employee> allEmployees =  employeeService.getAllEmployees();
+
+        for (Employee emp : allEmployees) {
+            if(emp.getManagerId() != null && emp.getManagerId().equals(teamBossId)) {
+                teamIds.add(emp.getId());
+            }
+        }
+
+        List<Leave> leaves = leaveRepository.getAllLeaves();
+
+        List<Leave> leaveList = new ArrayList<>();
+
+        for (Leave leave : leaves) {
+            if("APPROVED".equalsIgnoreCase(leave.getStatus()) && teamIds.contains(leave.getEmployeeId())) {
+                leaveList.add(leave);
+            }
+        }
+
+        return leaveList;
+    }
 
     private long calculateDays(LocalDate start, LocalDate end) {
         return end.toEpochDay() - start.toEpochDay() + 1;

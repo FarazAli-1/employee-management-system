@@ -33,6 +33,12 @@ public class LeaveController {
         return leaveService.getLeaveById(id);
     }
 
+    @GetMapping("/calender/{requesterId}")
+    public List<Leave> getTeamCalender(@PathVariable Integer requesterId) {
+        return leaveService.leaveCalender(requesterId);
+    }
+
+   
     @GetMapping("/employee/{EId}")
     public List<Leave> getLeaveByEmployeeId(@PathVariable Integer EId) {
         return leaveService.getAllLeavesByEmployeeId(EId);
@@ -52,6 +58,7 @@ public class LeaveController {
     public Leave approveLeave(@PathVariable Integer id, @RequestParam Integer managerId) {
         return leaveService.approveLeave(id, managerId);
     }
+
 
 
 }
