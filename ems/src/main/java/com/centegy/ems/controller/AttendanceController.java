@@ -6,6 +6,7 @@ import com.centegy.ems.service.AttendanceService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -20,7 +21,7 @@ public class AttendanceController {
 
     @PostMapping
     public Attendance addAttendance(@Valid @RequestBody Attendance attendance) {
-        return attendanceService.logAttendance(attendance);
+        return attendanceService.checkIn(attendance);
     }
 
     @GetMapping
@@ -38,6 +39,10 @@ public class AttendanceController {
         return attendanceService.updateAttendance(id, attendance);
     }
 
+    @PutMapping("/checkout/{id}")
+    public Attendance checkOut(@PathVariable Integer id, @RequestParam LocalTime checkOutTime) {
+        return attendanceService.checkOut(id, checkOutTime);
+    }
     @DeleteMapping("/{id}")
     public void deleteAttendance(@PathVariable Integer id) {
         attendanceService.deleteAttendanceById(id);

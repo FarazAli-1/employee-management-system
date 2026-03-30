@@ -4,6 +4,7 @@ import com.centegy.ems.model.Attendance;
 import com.centegy.ems.repository.AttendanceRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -15,7 +16,36 @@ public class AttendanceService {
         this.attendanceRepository = attendanceRepository;
     }
 
-    public Attendance logAttendance(Attendance attendance) {
+    public Attendance checkIn(Attendance attendance) {
+
+        LocalTime startOfDay = LocalTime.of(9, 0);
+        LocalTime checkInTime = attendance.getCheckInTime();
+
+        if (checkInTime.isAfter(startOfDay)) {
+            attendance.setStatus("LATE");
+        } else {
+            attendance.setStatus("ON_TIME");
+        }
+        return attendanceRepository.save(attendance);
+    }
+
+    public Attendance checkOut(Integer attendanceId, LocalTime checkOutTime) {
+
+
+        Attendance attendance =  attendanceRepository.findById(attendanceId)
+                .orElseThrow(() -> new RuntimeException("Attendance record not found!"));
+        LocalTime endOfDay = LocalTime.of(17, 30);
+
+        attendance.setCheckOutTime(checkOutTime);
+
+        if (checkOutTime.isBefore(endOfDay)) {
+            if ("LATE".equals(attendance.getStatus())) {
+                attendance.setStatus("LATE and EARLY_CHECKOUT");
+            } else {
+                attendance.setStatus("EARLY_CHECKOUT");
+            }
+        }
+
         return attendanceRepository.save(attendance);
     }
 

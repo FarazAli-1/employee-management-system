@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class Attendance {
 
@@ -13,9 +14,9 @@ public class Attendance {
     @NotNull
     private LocalDate attendanceDate;
     @NotNull
-    private LocalDateTime checkInTime;
-    private LocalDateTime checkOutTime;
-    @NotBlank
+    private LocalTime checkInTime;
+    private LocalTime checkOutTime;
+
     private String status; // ON_TIME, LATE, ABSENT
     @NotNull
     private Integer employeeId;
@@ -30,19 +31,19 @@ public class Attendance {
         this.attendanceDate = attendanceDate;
     }
 
-    public LocalDateTime getCheckInTime() {
+    public LocalTime getCheckInTime() {
         return checkInTime;
     }
 
-    public void setCheckInTime(LocalDateTime checkInTime) {
+    public void setCheckInTime(LocalTime checkInTime) {
         this.checkInTime = checkInTime;
     }
 
-    public LocalDateTime getCheckOutTime() {
+    public LocalTime getCheckOutTime() {
         return checkOutTime;
     }
 
-    public void setCheckOutTime(LocalDateTime checkOutTime) {
+    public void setCheckOutTime(LocalTime checkOutTime) {
         this.checkOutTime = checkOutTime;
     }
 
