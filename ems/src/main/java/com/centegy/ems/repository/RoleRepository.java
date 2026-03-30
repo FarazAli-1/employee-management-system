@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
@@ -25,5 +26,13 @@ public class RoleRepository {
         return roleList;
     }
 
+    public Optional<Role> findById(Integer id) {
+        for (Role role : roleList) {
+            if (role.getId().equals(id)) {
+                return Optional.of(role);
+            }
+        }
+        return Optional.empty();
+    }
 
 }

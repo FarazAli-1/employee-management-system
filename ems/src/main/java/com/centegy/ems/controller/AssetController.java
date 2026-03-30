@@ -33,8 +33,8 @@ public class AssetController {
     }
 
     @PutMapping("/{id}")
-    public Asset updateAsset(@PathVariable Integer id, @Valid @RequestBody Asset asset) {
-        return assetService.updateAsset(id, asset);
+    public Asset updateAsset(@PathVariable Integer id, @Valid @RequestBody Asset asset, @RequestParam Integer performerID) {
+        return assetService.updateAsset(id, asset,  performerID);
     }
 
     @PutMapping("/{id}/return")
@@ -43,12 +43,12 @@ public class AssetController {
     }
 
     @PutMapping("/{id}/approve")
-    public Asset approveAsset(@PathVariable Integer id, @Valid @RequestParam Integer adminId) {
-        return assetService.approveAsset(id, adminId);
+    public Asset approveAsset(@PathVariable Integer id, @Valid @RequestParam Integer approverId) {
+        return assetService.approveAsset(id, approverId);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteAsset(@PathVariable Integer id) {
-        assetService.deleteAsset(id);
+    public void deleteAsset(@PathVariable Integer id, @RequestParam Integer performerId) {
+        assetService.deleteAsset(id, performerId);
     }
 }

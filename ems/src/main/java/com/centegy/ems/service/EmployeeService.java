@@ -6,7 +6,6 @@ import com.centegy.ems.repository.EmployeeRepository;
 import com.centegy.ems.repository.LeaveRepository;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.Document;
 import java.util.List;
 
 @Service
@@ -77,6 +76,37 @@ public class EmployeeService {
         employee.setRoleId(updatedData.getRoleId());
 
         return employeeRepository.save(employee);
+    }
+
+    public String fixLegacyLeaveBalances() {
+        List<Employee> employees = getAllEmployees();
+
+        for (Employee employee : employees) {
+            if (leaveRepository.getBalanceByEmployeeId(employee.getId(), "ANNUAL").isEmpty()) {
+
+                // Annual Leave
+                LeaveBalance annual = new LeaveBalance();
+                annual.setEmployeeId(employee.getId());
+                annual.setLeaveType("ANNUAL");
+                annual.setRemainingDays(20);
+                leaveRepository.saveBalance(annual);
+
+                // Sick Leave
+                LeaveBalance sick = new LeaveBalance();
+                sick.setEmployeeId(employee.getId());
+                sick.setLeaveType("SICK");
+                sick.setRemainingDays(10);
+                leaveRepository.saveBalance(sick);
+
+                // Casual Leave
+                LeaveBalance casual = new LeaveBalance();
+                casual.setEmployeeId(employee.getId());
+                casual.setLeaveType("CASUAL");
+                casual.setRemainingDays(5);
+                leaveRepository.saveBalance(casual);
+            }
+        }
+        return "All legacy employees have been fixed and given all 3 leave types";
     }
 
     public Employee addDocument(Integer id,String documentType , String documentUrl) {

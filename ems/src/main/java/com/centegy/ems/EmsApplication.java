@@ -1,6 +1,7 @@
 package com.centegy.ems;
 
 import com.centegy.ems.model.*;
+import com.centegy.ems.model.enums.RoleRank;
 import com.centegy.ems.service.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -28,11 +29,13 @@ public class EmsApplication {
 			Role adminRole = new Role();
 			adminRole.setTitle("IT Admin");
 			adminRole.setDepartmentName("IT");
+			adminRole.setRoleLevel(RoleRank.ADMIN);
 			roleService.createRole(adminRole); // ID 1
 
 			Role devRole = new Role();
 			devRole.setTitle("Software Engineer");
 			devRole.setDepartmentName("Engineering");
+			devRole.setRoleLevel(RoleRank.EMPLOYEE);
 			roleService.createRole(devRole); // ID 2
 
 			// 2. Create Employees

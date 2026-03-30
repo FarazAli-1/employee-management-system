@@ -3,9 +3,9 @@ package com.centegy.ems.service;
 import com.centegy.ems.model.Asset;
 import com.centegy.ems.model.AssetHistory;
 import com.centegy.ems.model.Employee;
+import com.centegy.ems.model.Role;
 import com.centegy.ems.repository.AssetHistoryRepository;
 import com.centegy.ems.repository.AssetRepository;
-import com.centegy.ems.repository.EmployeeRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -16,12 +16,14 @@ public class AssetService {
 
     private final AssetRepository assetRepository;
     private final EmployeeService employeeService;
+    private final RoleService roleService;
     private final AssetHistoryRepository assetHistoryRepository;
 
-    public AssetService(AssetRepository assetRepository, EmployeeService employeeService, AssetHistoryRepository assetHistoryRepository) {
+    public AssetService(AssetRepository assetRepository, EmployeeService employeeService, AssetHistoryRepository assetHistoryRepository, RoleService roleService) {
         this.assetRepository = assetRepository;
         this.employeeService = employeeService;
         this.assetHistoryRepository = assetHistoryRepository;
+        this.roleService = roleService;
     }
 
     public Asset createAsset(Asset asset) {
@@ -48,9 +50,10 @@ public class AssetService {
                 .orElseThrow(() -> new RuntimeException("Asset not found with ID: " + id));
     }
 
-    public Asset updateAsset(Integer id, Asset updatedData) {
+    public Asset updateAsset(Integer id, Asset updatedData,Integer performerID) {
 
         Asset asset = getAssetById(id);
+        validateRoleStatus(performerID);
 
         if (updatedData.getEmployeeId() != null) {
             employeeService.getEmployeeByID(updatedData.getEmployeeId());
@@ -64,8 +67,11 @@ public class AssetService {
         return assetRepository.save(asset);
     }
 
-    public void deleteAsset(Integer id) {
+    public void deleteAsset(Integer id, Integer performerID) {
+
+        validateRoleStatus(performerID);
         boolean isDeleted = assetRepository.deleteById(id);
+
         if (!isDeleted) {
             throw new RuntimeException("Cannot delete. Asset not found with ID: " + id);
         }
@@ -95,24 +101,30 @@ public class AssetService {
     }
 
 
-    public Asset approveAsset(Integer id, Integer adminId) {
+    public Asset approveAsset(Integer id, Integer approverId) {
         Asset asset = getAssetById(id);
-
-        employeeService.getEmployeeByID(adminId);
+        validateRoleStatus(approverId);
 
         asset.setStatus("APPROVED");
-        asset.setApprovedBy(adminId);
+        asset.setApprovedBy(approverId);
 
         AssetHistory assetHistory = new AssetHistory();
         assetHistory.setAssetId(id);
         assetHistory.setEmployeeId(asset.getEmployeeId());
-        assetHistory.setApprovedBy(adminId);
+        assetHistory.setApprovedBy(approverId);
         assetHistory.setApprovedDate(LocalDate.now());
         assetHistoryRepository.save(assetHistory);
 
         return assetRepository.save(asset);
+    }
 
+    public void validateRoleStatus(Integer id) {
+        Employee employee = employeeService.getEmployeeByID(id);
+        Role role = roleService.getRoleByID(employee.getRoleId());
 
+       if (role.getRoleLevel().getLevel() > 2){
+           throw new RuntimeException("Access Denied: You do not have the required rank to perform this action.");
+       }
 
     }
 }

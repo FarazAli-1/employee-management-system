@@ -24,4 +24,9 @@ public class RoleService {
         return roleRepository.findAll();
     }
 
+    public Role getRoleByID(Integer id) {
+        return roleRepository.findById(id).orElseThrow(() -> new RuntimeException("Role not found with ID: " + id));
+    }
+
+
 }
