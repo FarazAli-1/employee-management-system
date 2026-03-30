@@ -77,6 +77,12 @@ public class EmployeeController {
         return employeeService.updateEmployee(id, employee);
     }
 
+    @PutMapping("/{id}/documents")
+    public Employee uploadDocument(@PathVariable Integer id, @RequestParam String documentType, @RequestParam String documentUrl) {
+
+        return employeeService.addDocument(id, documentType, documentUrl);
+    }
+
     @DeleteMapping("/{id}")
     public void deleteEmployee(@PathVariable Integer id) {
         employeeService.deleteEmployee(id);

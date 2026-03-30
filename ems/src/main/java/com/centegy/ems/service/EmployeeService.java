@@ -6,6 +6,7 @@ import com.centegy.ems.repository.EmployeeRepository;
 import com.centegy.ems.repository.LeaveRepository;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.Document;
 import java.util.List;
 
 @Service
@@ -76,6 +77,34 @@ public class EmployeeService {
         employee.setRoleId(updatedData.getRoleId());
 
         return employeeRepository.save(employee);
+    }
+
+    public Employee addDocument(Integer id,String documentType , String documentUrl) {
+        Employee employee = getEmployeeByID(id);
+
+        try {
+            new java.net.URL(documentUrl);
+        } catch (java.net.MalformedURLException e) {
+            throw new RuntimeException("Invalid document URL format! Please provide a valid web address.");
+        }
+
+        switch (documentType.toUpperCase()) {
+            case "CNIC":
+                employee.setCnicURL(documentUrl);
+                break;
+            case "CONTRACT":
+                employee.setContractURL(documentUrl);
+                break;
+            case "CERTIFICATE":
+                employee.setCertificateURL(documentUrl);
+                break;
+            default:
+                throw new RuntimeException("Invalid document type! Use CNIC, CONTRACT, or CERTIFICATE.");
+
+        }
+
+       return employeeRepository.save(employee);
+
     }
 
 
