@@ -3,6 +3,7 @@ package com.centegy.ems.repository;
 
 import com.centegy.ems.model.Leave;
 import com.centegy.ems.model.LeaveBalance;
+import com.centegy.ems.model.enums.LeaveType;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -68,9 +69,9 @@ public class LeaveRepository {
         return employeeLeaves;
     }
 
-    public Optional<LeaveBalance> getBalanceByEmployeeId(Integer employeeId, String leaveType) {
+    public Optional<LeaveBalance> getBalanceByEmployeeId(Integer employeeId, LeaveType leaveType) {
         return balanceList.stream()
-                .filter(b -> b.getEmployeeId().equals(employeeId) &&  b.getLeaveType().equalsIgnoreCase(leaveType))
+                .filter(b -> b.getEmployeeId().equals(employeeId) &&  b.getLeaveType() == leaveType)
                 .findFirst();
     }
 

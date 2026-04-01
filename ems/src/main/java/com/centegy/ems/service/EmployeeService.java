@@ -2,6 +2,7 @@ package com.centegy.ems.service;
 
 import com.centegy.ems.model.Employee;
 import com.centegy.ems.model.LeaveBalance;
+import com.centegy.ems.model.enums.LeaveType;
 import com.centegy.ems.repository.EmployeeRepository;
 import com.centegy.ems.repository.LeaveRepository;
 import org.springframework.stereotype.Service;
@@ -27,25 +28,31 @@ public class EmployeeService {
         // Annual Leave
         LeaveBalance annual = new LeaveBalance();
         annual.setEmployeeId(newEmployee.getId());
-        annual.setLeaveType("ANNUAL");
+        annual.setLeaveType(LeaveType.ANNUAL);
         annual.setRemainingDays(20);
         leaveRepository.saveBalance(annual);
+        newEmployee.getLeaveBalances().add(annual);
+
 
         // Sick Leave
         LeaveBalance sick = new LeaveBalance();
         sick.setEmployeeId(newEmployee.getId());
-        sick.setLeaveType("SICK");
+        sick.setLeaveType(LeaveType.SICK);
         sick.setRemainingDays(10);
         leaveRepository.saveBalance(sick);
+        newEmployee.getLeaveBalances().add(sick);
 
         // Casual Leave
         LeaveBalance casual = new LeaveBalance();
         casual.setEmployeeId(newEmployee.getId());
-        casual.setLeaveType("CASUAL");
+        casual.setLeaveType(LeaveType.CASUAL);
         casual.setRemainingDays(5);
         leaveRepository.saveBalance(casual);
+        newEmployee.getLeaveBalances().add(casual);
 
         return newEmployee;
+
+
     }
 
     public List<Employee> getAllEmployees() {
@@ -82,28 +89,33 @@ public class EmployeeService {
         List<Employee> employees = getAllEmployees();
 
         for (Employee employee : employees) {
-            if (leaveRepository.getBalanceByEmployeeId(employee.getId(), "ANNUAL").isEmpty()) {
+            if (leaveRepository.getBalanceByEmployeeId(employee.getId(), LeaveType.ANNUAL).isEmpty()) {
 
                 // Annual Leave
                 LeaveBalance annual = new LeaveBalance();
                 annual.setEmployeeId(employee.getId());
-                annual.setLeaveType("ANNUAL");
+                annual.setLeaveType(LeaveType.ANNUAL);
                 annual.setRemainingDays(20);
                 leaveRepository.saveBalance(annual);
+                employee.getLeaveBalances().add(annual);
+
 
                 // Sick Leave
                 LeaveBalance sick = new LeaveBalance();
                 sick.setEmployeeId(employee.getId());
-                sick.setLeaveType("SICK");
+                sick.setLeaveType(LeaveType.SICK);
                 sick.setRemainingDays(10);
                 leaveRepository.saveBalance(sick);
+                employee.getLeaveBalances().add(annual);
 
                 // Casual Leave
                 LeaveBalance casual = new LeaveBalance();
                 casual.setEmployeeId(employee.getId());
-                casual.setLeaveType("CASUAL");
+                casual.setLeaveType(LeaveType.CASUAL);
                 casual.setRemainingDays(5);
                 leaveRepository.saveBalance(casual);
+                employee.getLeaveBalances().add(annual);
+
             }
         }
         return "All legacy employees have been fixed and given all 3 leave types";

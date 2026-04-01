@@ -1,6 +1,7 @@
 package com.centegy.ems.service;
 
 import com.centegy.ems.model.Attendance;
+import com.centegy.ems.model.enums.AttendanceStatus;
 import com.centegy.ems.repository.AttendanceRepository;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +23,9 @@ public class AttendanceService {
         LocalTime checkInTime = attendance.getCheckInTime();
 
         if (checkInTime.isAfter(startOfDay)) {
-            attendance.setStatus("LATE");
+            attendance.setStatus(AttendanceStatus.LATE);
         } else {
-            attendance.setStatus("ON_TIME");
+            attendance.setStatus(AttendanceStatus.ON_TIME);
         }
         return attendanceRepository.save(attendance);
     }
@@ -39,10 +40,10 @@ public class AttendanceService {
         attendance.setCheckOutTime(checkOutTime);
 
         if (checkOutTime.isBefore(endOfDay)) {
-            if ("LATE".equals(attendance.getStatus())) {
-                attendance.setStatus("LATE and EARLY_CHECKOUT");
+            if (AttendanceStatus.LATE.equals(attendance.getStatus())) {
+                attendance.setStatus(AttendanceStatus.LATE_AND_EARLY_CHECKOUT);
             } else {
-                attendance.setStatus("EARLY_CHECKOUT");
+                attendance.setStatus(AttendanceStatus.EARLY_CHECKOUT);
             }
         }
 

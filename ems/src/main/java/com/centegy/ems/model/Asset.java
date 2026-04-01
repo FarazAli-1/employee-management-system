@@ -1,5 +1,6 @@
 package com.centegy.ems.model;
 
+import com.centegy.ems.model.enums.AssetStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -12,8 +13,8 @@ public class Asset {
 
     @NotBlank
     private String assetType;
-    @NotBlank
-    private String status;
+
+    private AssetStatus status;
 
     @NotNull
     private Integer employeeId;
@@ -55,11 +56,11 @@ public class Asset {
         this.id = id;
     }
 
-    public String getStatus() {
+    public AssetStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(AssetStatus status) {
         this.status = status;
     }
 

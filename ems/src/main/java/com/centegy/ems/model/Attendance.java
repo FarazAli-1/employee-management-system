@@ -1,5 +1,6 @@
 package com.centegy.ems.model;
 
+import com.centegy.ems.model.enums.AttendanceStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -17,7 +18,7 @@ public class Attendance {
     private LocalTime checkInTime;
     private LocalTime checkOutTime;
 
-    private String status; // ON_TIME, LATE, ABSENT
+    private AttendanceStatus status;
     @NotNull
     private Integer employeeId;
 
@@ -63,11 +64,11 @@ public class Attendance {
         this.id = id;
     }
 
-    public String getStatus() {
+    public AttendanceStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(AttendanceStatus status) {
         this.status = status;
     }
 }

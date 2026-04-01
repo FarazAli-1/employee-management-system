@@ -1,5 +1,7 @@
 package com.centegy.ems.model;
 
+import com.centegy.ems.model.enums.LeaveStatus;
+import com.centegy.ems.model.enums.LeaveType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -9,13 +11,14 @@ public class Leave {
 
     private Integer id;
 
-    @NotBlank
-    private String leaveType; // SICK, ANNUAL, CASUAL
+    @NotNull
+    private LeaveType leaveType;
+
     @NotNull
     private LocalDate startDate;
     @NotNull
     private LocalDate endDate;
-    private String status; // PENDING, APPROVED, REJECTED
+    private LeaveStatus status;
     @NotNull
     private Integer employeeId;
     private Integer approvedBy; // The Manager's Employee ID
@@ -54,11 +57,11 @@ public class Leave {
         this.id = id;
     }
 
-    public String getLeaveType() {
+    public LeaveType getLeaveType() {
         return leaveType;
     }
 
-    public void setLeaveType(String leaveType) {
+    public void setLeaveType(LeaveType leaveType) {
         this.leaveType = leaveType;
     }
 
@@ -70,11 +73,11 @@ public class Leave {
         this.startDate = startDate;
     }
 
-    public String getStatus() {
+    public LeaveStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(LeaveStatus status) {
         this.status = status;
     }
 }

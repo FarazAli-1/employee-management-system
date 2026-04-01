@@ -1,5 +1,6 @@
 package com.centegy.ems.model;
 
+import com.centegy.ems.model.enums.EmploymentType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -21,8 +22,8 @@ public class Employee {
     private String email;
     private String phone;
 
-    @NotBlank(message = "Employment type is required")
-    private String employmentType;
+    @NotNull
+    private EmploymentType employmentType;
 
     private String cnicURL;
     private String contractURL;
@@ -69,11 +70,11 @@ public class Employee {
         this.email = email;
     }
 
-    public String getEmploymentType() {
+    public EmploymentType getEmploymentType() {
         return employmentType;
     }
 
-    public void setEmploymentType(String employmentType) {
+    public void setEmploymentType(EmploymentType employmentType) {
         this.employmentType = employmentType;
     }
 

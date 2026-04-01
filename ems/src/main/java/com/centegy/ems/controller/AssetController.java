@@ -1,6 +1,7 @@
 package com.centegy.ems.controller;
 
 import com.centegy.ems.model.Asset;
+import com.centegy.ems.model.AssetHistory;
 import com.centegy.ems.service.AssetService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,11 @@ public class AssetController {
     @GetMapping("/{id}")
     public Asset getAssetById(@PathVariable Integer id) {
         return assetService.getAssetById(id);
+    }
+
+    @GetMapping("/{id}/history")
+    public List<AssetHistory> getAssetHistory(@PathVariable Integer id) {
+        return assetService.getAssetHistory(id);
     }
 
     @PutMapping("/{id}")

@@ -2,6 +2,7 @@ package com.centegy.ems.model;
 
 import com.centegy.ems.model.enums.RoleRank;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class Role {
 
@@ -10,8 +11,8 @@ public class Role {
     private Integer id;
     @NotBlank (message = "Title is required")
     private String title;
-    @NotBlank (message = "Department Name is required")
-    private String departmentName;
+    @NotNull
+    private Integer departmentId;
 
     private RoleRank roleLevel;
 
@@ -19,12 +20,12 @@ public class Role {
 
 
 
-    public String getDepartmentName() {
-        return departmentName;
+    public Integer getDepartmentId() {
+        return departmentId;
     }
 
-    public void setDepartmentName(String departmentName) {
-        this.departmentName = departmentName;
+    public void setDepartmentId(Integer departmentId) {
+        this.departmentId = departmentId;
     }
 
     public Integer getId() {

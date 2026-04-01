@@ -48,5 +48,14 @@ public class AssetHistoryRepository {
         return null;
     }
 
+    public List<AssetHistory> getHistoryByAssetId(Integer assetId) {
+        List<AssetHistory> history = new ArrayList<>();
+        for (AssetHistory ah : assetHistoryList) {
+            if (ah.getAssetId().equals(assetId)) {
+                history.add(ah);
+            }
+        }
+        return history;
+    }
 
 }

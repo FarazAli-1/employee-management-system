@@ -1,13 +1,14 @@
 package com.centegy.ems.model;
 
+import com.centegy.ems.model.enums.LeaveType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class LeaveBalance {
 
-    @NotBlank
-    private String leaveType;
+    @NotNull
+    private LeaveType leaveType;
     @Min(0)
     private int remainingDays;
     @NotNull
@@ -17,7 +18,7 @@ public class LeaveBalance {
     public LeaveBalance(){}  //no-arg const needed for spring boot
 
 
-    public LeaveBalance(String leaveType, int remainingDays) {
+    public LeaveBalance(LeaveType leaveType, int remainingDays) {
         this.leaveType = leaveType;
         this.remainingDays = remainingDays;
     }
@@ -32,11 +33,11 @@ public class LeaveBalance {
         this.remainingDays = remainingDays;
     }
 
-    public String getLeaveType() {
+    public LeaveType getLeaveType() {
         return leaveType;
     }
 
-    public void setLeaveType(String leaveType) {
+    public void setLeaveType(LeaveType leaveType) {
         this.leaveType = leaveType;
     }
 

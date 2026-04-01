@@ -4,6 +4,8 @@ package com.centegy.ems.service;
 import com.centegy.ems.model.Employee;
 import com.centegy.ems.model.Leave;
 import com.centegy.ems.model.LeaveBalance;
+import com.centegy.ems.model.enums.LeaveStatus;
+import com.centegy.ems.model.enums.LeaveType;
 import com.centegy.ems.repository.LeaveRepository;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,10 @@ public class LeaveService {
 
     public Leave applyForLeave(Leave leave) {
 
+        if (leave.getEndDate().isBefore(leave.getStartDate())) {
+            throw new RuntimeException("Invalid Dates: End date cannot be before the start date!");
+        }
+
         long daysRequested = calculateDays(leave.getStartDate(),leave.getEndDate());
 
         LeaveBalance balance = leaveRepository.getBalanceByEmployeeId(leave.getEmployeeId(), leave.getLeaveType())
@@ -38,8 +44,8 @@ public class LeaveService {
                     " days but only have " + balance.getRemainingDays() + " remaining.");
         }
 
-        if(leave.getStatus() == null || leave.getStatus().isBlank()) {
-            leave.setStatus("PENDING");
+        if(leave.getStatus() == null) {
+            leave.setStatus(LeaveStatus.PENDING);
         }
         return leaveRepository.save(leave);
     }
@@ -88,7 +94,7 @@ public class LeaveService {
         balance.setRemainingDays(balance.getRemainingDays()- (int) daysRequested);
 
 
-        leave.setStatus("APPROVED");
+        leave.setStatus(LeaveStatus.APPROVED);
         leave.setApprovedBy(managerId);
         return leaveRepository.save(leave);
     }
@@ -123,7 +129,7 @@ public class LeaveService {
         List<Leave> leaveList = new ArrayList<>();
 
         for (Leave leave : leaves) {
-            if("APPROVED".equalsIgnoreCase(leave.getStatus()) && teamIds.contains(leave.getEmployeeId())) {
+            if(LeaveStatus.APPROVED.equals(leave.getStatus()) && teamIds.contains(leave.getEmployeeId())) {
                 leaveList.add(leave);
             }
         }

@@ -4,6 +4,7 @@ import com.centegy.ems.model.Asset;
 import com.centegy.ems.model.AssetHistory;
 import com.centegy.ems.model.Employee;
 import com.centegy.ems.model.Role;
+import com.centegy.ems.model.enums.AssetStatus;
 import com.centegy.ems.repository.AssetHistoryRepository;
 import com.centegy.ems.repository.AssetRepository;
 import org.springframework.stereotype.Service;
@@ -33,8 +34,8 @@ public class AssetService {
             employeeService.getEmployeeByID(asset.getEmployeeId());
         }
 
-        if (asset.getStatus() == null || asset.getStatus().isBlank() ) {
-                asset.setStatus("REQUESTED");
+        if (asset.getStatus() == null ) {
+                asset.setStatus(AssetStatus.REQUESTED);
         }
 
 
@@ -96,7 +97,7 @@ public class AssetService {
 
 
         asset.setEmployeeId(null);
-        asset.setStatus("RETURNED");
+        asset.setStatus(AssetStatus.RETURNED);
         return assetRepository.save(asset);
     }
 
@@ -105,7 +106,7 @@ public class AssetService {
         Asset asset = getAssetById(id);
         validateRoleStatus(approverId);
 
-        asset.setStatus("APPROVED");
+        asset.setStatus(AssetStatus.APPROVED);
         asset.setApprovedBy(approverId);
 
         AssetHistory assetHistory = new AssetHistory();
@@ -116,6 +117,11 @@ public class AssetService {
         assetHistoryRepository.save(assetHistory);
 
         return assetRepository.save(asset);
+    }
+
+    public List<AssetHistory> getAssetHistory(Integer assetId) {
+        getAssetById(assetId);
+        return assetHistoryRepository.getHistoryByAssetId(assetId);
     }
 
     public void validateRoleStatus(Integer id) {
