@@ -1,56 +1,35 @@
 package com.centegy.ems.model;
 
 import com.centegy.ems.model.enums.RoleRank;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@Entity
 public class Role {
 
-
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+
     @NotBlank (message = "Title is required")
     private String title;
-    @NotNull
-    private Integer departmentId;
 
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
+
+    @Enumerated(EnumType.STRING)
     private RoleRank roleLevel;
 
-    public Role(){}
-
-
-
-    public Integer getDepartmentId() {
-        return departmentId;
-    }
-
-    public void setDepartmentId(Integer departmentId) {
-        this.departmentId = departmentId;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public RoleRank getRoleLevel() {
-        return roleLevel;
-    }
-
-    public void setRoleLevel(RoleRank roleLevel) {
-        this.roleLevel = roleLevel;
-    }
 
 
 }

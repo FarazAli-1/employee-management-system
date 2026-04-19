@@ -1,5 +1,6 @@
 package com.centegy.ems.service;
 
+import com.centegy.ems.model.Department;
 import com.centegy.ems.model.Role;
 import com.centegy.ems.repository.RoleRepository;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,11 @@ public class RoleService {
     }
 
     public Role createRole(Role role) {
-        departmentService.getDepartmentById(role.getDepartmentId());
+
+        Integer deptId = role.getDepartment().getId();
+        Department realDepartment = departmentService.getDepartmentById(deptId);
+        role.setDepartment(realDepartment);
+
         return roleRepository.save(role);
     }
 

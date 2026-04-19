@@ -2,6 +2,7 @@ package com.centegy.ems.repository;
 
 
 import com.centegy.ems.model.Role;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -10,29 +11,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
-public class RoleRepository {
-
-    private final List<Role> roleList = new ArrayList<>();
-
-    private final AtomicInteger idGenerator = new AtomicInteger(1);
-
-    public Role save(Role role) {
-        role.setId(idGenerator.getAndIncrement());
-        roleList.add(role);
-        return role;
-    }
-
-    public List<Role> findAll() {
-        return roleList;
-    }
-
-    public Optional<Role> findById(Integer id) {
-        for (Role role : roleList) {
-            if (role.getId().equals(id)) {
-                return Optional.of(role);
-            }
-        }
-        return Optional.empty();
-    }
+public interface RoleRepository extends JpaRepository<Role,Integer> {
 
 }

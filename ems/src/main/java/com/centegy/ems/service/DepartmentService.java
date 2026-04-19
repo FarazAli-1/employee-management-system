@@ -29,9 +29,11 @@ public class DepartmentService {
     }
 
     public void deleteDepartment(Integer id) {
-        boolean isDeleted = departmentRepository.deleteById(id);
-        if (!isDeleted) {
+
+        if (!departmentRepository.existsById(id)) {
             throw new RuntimeException("Cannot delete. Department not found with ID: " + id);
         }
+
+        departmentRepository.deleteById(id);
     }
 }

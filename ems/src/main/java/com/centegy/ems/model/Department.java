@@ -1,38 +1,29 @@
 package com.centegy.ems.model;
 
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Entity
 public class Department {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @NotBlank(message = "Department name is required")
     private String name;
     private Integer headOfDepartmentId;
 
-    public Department() {}
+    @OneToMany(mappedBy = "department")
+    private List<Role> roles = new ArrayList<>();
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getHeadOfDepartmentId() {
-        return headOfDepartmentId;
-    }
-
-    public void setHeadOfDepartmentId(Integer headOfDepartmentId) {
-        this.headOfDepartmentId = headOfDepartmentId;
-    }
 }
