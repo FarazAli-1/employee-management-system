@@ -28,12 +28,12 @@ public class DepartmentController {
     }
 
     @GetMapping("/{id}")
-    public Department getDepartmentById(@PathVariable Integer id) {
+    public Department getDepartmentById(@PathVariable Long id) {
         return departmentService.getDepartmentById(id);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteDepartment(@PathVariable Integer id) {
+    public void deleteDepartment(@PathVariable Long id) {
         departmentService.deleteDepartment(id);
     }
 }

@@ -29,32 +29,32 @@ public class AssetController {
     }
 
     @GetMapping("/{id}")
-    public Asset getAssetById(@PathVariable Integer id) {
+    public Asset getAssetById(@PathVariable Long id) {
         return assetService.getAssetById(id);
     }
 
     @GetMapping("/{id}/history")
-    public List<AssetHistory> getAssetHistory(@PathVariable Integer id) {
+    public List<AssetHistory> getAssetHistory(@PathVariable Long id) {
         return assetService.getAssetHistory(id);
     }
 
     @PutMapping("/{id}")
-    public Asset updateAsset(@PathVariable Integer id, @Valid @RequestBody Asset asset, @RequestParam Integer performerID) {
+    public Asset updateAsset(@PathVariable Long id, @Valid @RequestBody Asset asset, @RequestParam Long performerID) {
         return assetService.updateAsset(id, asset,  performerID);
     }
 
     @PutMapping("/{id}/return")
-    public Asset returnAsset(@PathVariable Integer id, @Valid @RequestParam Integer employeeId) {
+    public Asset returnAsset(@PathVariable Long id, @Valid @RequestParam Long employeeId) {
         return assetService.returnAsset(id, employeeId);
     }
 
     @PutMapping("/{id}/approve")
-    public Asset approveAsset(@PathVariable Integer id, @Valid @RequestParam Integer approverId) {
+    public Asset approveAsset(@PathVariable Long id, @Valid @RequestParam Long approverId) {
         return assetService.approveAsset(id, approverId);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteAsset(@PathVariable Integer id, @RequestParam Integer performerId) {
+    public void deleteAsset(@PathVariable Long id, @RequestParam Long performerId) {
         assetService.deleteAsset(id, performerId);
     }
 }

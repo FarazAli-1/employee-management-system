@@ -23,12 +23,12 @@ public class DepartmentService {
         return departmentRepository.findAll();
     }
 
-    public Department getDepartmentById(Integer id) {
+    public Department getDepartmentById(Long id) {
         return departmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Department not found with ID: " + id));
     }
 
-    public void deleteDepartment(Integer id) {
+    public void deleteDepartment(Long id) {
 
         if (!departmentRepository.existsById(id)) {
             throw new RuntimeException("Cannot delete. Department not found with ID: " + id);

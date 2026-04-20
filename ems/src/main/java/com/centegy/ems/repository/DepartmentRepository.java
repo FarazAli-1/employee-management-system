@@ -10,6 +10,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
-public interface DepartmentRepository extends JpaRepository<Department, Integer> {
+public interface DepartmentRepository extends JpaRepository<Department, Long> {
 
 }

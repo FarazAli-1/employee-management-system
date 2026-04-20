@@ -1,16 +1,27 @@
 package com.centegy.ems.model;
 
 import com.centegy.ems.model.enums.AttendanceStatus;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Entity
 public class Attendance {
 
-    private Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotNull
     private LocalDate attendanceDate;
@@ -18,57 +29,13 @@ public class Attendance {
     private LocalTime checkInTime;
     private LocalTime checkOutTime;
 
+    @Enumerated(EnumType.STRING)
     private AttendanceStatus status;
+
     @NotNull
-    private Integer employeeId;
+    @ManyToOne
+    @JoinColumn(name = "employee_id")
+    private Employee employee;
 
-    public Attendance() {}
 
-    public LocalDate getAttendanceDate() {
-        return attendanceDate;
-    }
-
-    public void setAttendanceDate(LocalDate attendanceDate) {
-        this.attendanceDate = attendanceDate;
-    }
-
-    public LocalTime getCheckInTime() {
-        return checkInTime;
-    }
-
-    public void setCheckInTime(LocalTime checkInTime) {
-        this.checkInTime = checkInTime;
-    }
-
-    public LocalTime getCheckOutTime() {
-        return checkOutTime;
-    }
-
-    public void setCheckOutTime(LocalTime checkOutTime) {
-        this.checkOutTime = checkOutTime;
-    }
-
-    public Integer getEmployeeId() {
-        return employeeId;
-    }
-
-    public void setEmployeeId(Integer employeeId) {
-        this.employeeId = employeeId;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public AttendanceStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(AttendanceStatus status) {
-        this.status = status;
-    }
 }

@@ -17,22 +17,18 @@ public class AssetService {
 
     private final AssetRepository assetRepository;
     private final EmployeeService employeeService;
-    private final RoleService roleService;
     private final AssetHistoryRepository assetHistoryRepository;
 
-    public AssetService(AssetRepository assetRepository, EmployeeService employeeService, AssetHistoryRepository assetHistoryRepository, RoleService roleService) {
+    public AssetService(AssetRepository assetRepository, EmployeeService employeeService, AssetHistoryRepository assetHistoryRepository) {
         this.assetRepository = assetRepository;
         this.employeeService = employeeService;
         this.assetHistoryRepository = assetHistoryRepository;
-        this.roleService = roleService;
     }
 
     public Asset createAsset(Asset asset) {
 
-
-        if (asset.getEmployeeId() != null) {
-            employeeService.getEmployeeByID(asset.getEmployeeId());
-        }
+        Employee realEmployee = employeeService.getEmployeeByID(asset.getEmployee().getId());
+        asset.setEmployee(realEmployee);
 
         if (asset.getStatus() == null ) {
                 asset.setStatus(AssetStatus.REQUESTED);
@@ -46,49 +42,49 @@ public class AssetService {
         return assetRepository.findAll();
     }
 
-    public Asset getAssetById(Integer id) {
+    public Asset getAssetById(Long id) {
         return assetRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Asset not found with ID: " + id));
     }
 
-    public Asset updateAsset(Integer id, Asset updatedData,Integer performerID) {
+    public Asset updateAsset(Long id, Asset updatedData,Long performerID) {
 
         Asset asset = getAssetById(id);
         validateRoleStatus(performerID);
 
-        if (updatedData.getEmployeeId() != null) {
-            employeeService.getEmployeeByID(updatedData.getEmployeeId());
-        }
+        Employee Realemployee = employeeService.getEmployeeByID(updatedData.getEmployee().getId());
+
 
         asset.setAssetName(updatedData.getAssetName());
         asset.setAssetType(updatedData.getAssetType());
         asset.setStatus(updatedData.getStatus());
-        asset.setEmployeeId(updatedData.getEmployeeId());
+        asset.setEmployee(Realemployee);
+
 
         return assetRepository.save(asset);
     }
 
-    public void deleteAsset(Integer id, Integer performerID) {
+    public void deleteAsset(Long id, Long performerID) {
 
         validateRoleStatus(performerID);
-        boolean isDeleted = assetRepository.deleteById(id);
 
-        if (!isDeleted) {
+        if (!assetRepository.existsById(id)) {
             throw new RuntimeException("Cannot delete. Asset not found with ID: " + id);
         }
     }
 
-    public Asset returnAsset(Integer id, Integer employeeId) {
+    public Asset returnAsset(Long id, Long employeeId) {
         Asset asset = getAssetById(id);
 
         employeeService.getEmployeeByID(employeeId);
 
 
-        if (asset.getEmployeeId() == null || !asset.getEmployeeId().equals(employeeId)) {
+        if (asset.getEmployee().getId() == null || !asset.getEmployee().getId().equals(employeeId)) {
                 throw new RuntimeException("Unauthorized: You cannot return an asset that is not assigned to you.");
         }
 
-        AssetHistory  assetHistory = assetHistoryRepository.findAssetHistory(id);
+        AssetHistory  assetHistory = assetHistoryRepository.findByAssetIdAndReturnDateIsNull(id)
+                .orElse(null);
 
         if (assetHistory != null) {
             assetHistory.setReturnDate(LocalDate.now());
@@ -96,35 +92,38 @@ public class AssetService {
         }
 
 
-        asset.setEmployeeId(null);
+        asset.setEmployee(null);
         asset.setStatus(AssetStatus.RETURNED);
         return assetRepository.save(asset);
     }
 
 
-    public Asset approveAsset(Integer id, Integer approverId) {
+    public Asset approveAsset(Long id, Long approverId) {
         Asset asset = getAssetById(id);
         validateRoleStatus(approverId);
 
+        Employee realEmployee = employeeService.getEmployeeByID(approverId);
+
+
         asset.setStatus(AssetStatus.APPROVED);
-        asset.setApprovedBy(approverId);
+        asset.setApprovedBy(realEmployee);
 
         AssetHistory assetHistory = new AssetHistory();
-        assetHistory.setAssetId(id);
-        assetHistory.setEmployeeId(asset.getEmployeeId());
-        assetHistory.setApprovedBy(approverId);
+        assetHistory.setAsset(asset);
+        assetHistory.setEmployee(asset.getEmployee());
+        assetHistory.setApprovedBy(realEmployee);
         assetHistory.setApprovedDate(LocalDate.now());
         assetHistoryRepository.save(assetHistory);
 
         return assetRepository.save(asset);
     }
 
-    public List<AssetHistory> getAssetHistory(Integer assetId) {
+    public List<AssetHistory> getAssetHistory(Long assetId) {
         getAssetById(assetId);
-        return assetHistoryRepository.getHistoryByAssetId(assetId);
+        return assetHistoryRepository.findByAssetId(assetId);
     }
 
-    public void validateRoleStatus(Integer id) {
+    public void validateRoleStatus(Long id) {
         Employee employee = employeeService.getEmployeeByID(id);
         Role role = employee.getRole();
 

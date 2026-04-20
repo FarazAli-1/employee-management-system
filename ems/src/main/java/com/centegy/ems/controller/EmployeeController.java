@@ -36,23 +36,23 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public Employee getEmployee(@PathVariable Integer id) {
+    public Employee getEmployee(@PathVariable Long id) {
         return employeeService.getEmployeeByID(id);
     }
 
     @PutMapping("/{id}")
-    public Employee updateEmployee(@PathVariable Integer id, @Valid @RequestBody Employee employee) {
+    public Employee updateEmployee(@PathVariable Long id, @Valid @RequestBody Employee employee) {
         return employeeService.updateEmployee(id, employee);
     }
 
     @PutMapping("/{id}/documents")
-    public Employee uploadDocument(@PathVariable Integer id, @RequestParam String documentType, @RequestParam String documentUrl) {
+    public Employee uploadDocument(@PathVariable Long id, @RequestParam String documentType, @RequestParam String documentUrl) {
 
         return employeeService.addDocument(id, documentType, documentUrl);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteEmployee(@PathVariable Integer id) {
+    public void deleteEmployee(@PathVariable Long id) {
         employeeService.deleteEmployee(id);
     }
 

@@ -29,33 +29,33 @@ public class LeaveController {
     }
 
     @GetMapping("/{id}")
-    public Leave getLeaveById(@PathVariable Integer id) {
+    public Leave getLeaveById(@PathVariable Long id) {
         return leaveService.getLeaveById(id);
     }
 
     @GetMapping("/calender/{requesterId}")
-    public List<Leave> getTeamCalender(@PathVariable Integer requesterId) {
+    public List<Leave> getTeamCalender(@PathVariable Long requesterId) {
         return leaveService.leaveCalender(requesterId);
     }
 
    
     @GetMapping("/employee/{EId}")
-    public List<Leave> getLeaveByEmployeeId(@PathVariable Integer EId) {
+    public List<Leave> getLeaveByEmployeeId(@PathVariable Long EId) {
         return leaveService.getAllLeavesByEmployeeId(EId);
     }
 
     @PutMapping("/{id}")
-    public Leave updateLeave(@PathVariable Integer id, @Valid @RequestBody Leave leave) {
+    public Leave updateLeave(@PathVariable Long id, @Valid @RequestBody Leave leave) {
         return leaveService.updateLeave(id, leave);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteLeave(@PathVariable Integer id) {
+    public void deleteLeave(@PathVariable Long id) {
         leaveService.deleteLeave(id);
     }
 
     @PutMapping("/{id}/approve")
-    public Leave approveLeave(@PathVariable Integer id, @RequestParam Integer managerId) {
+    public Leave approveLeave(@PathVariable Long id, @RequestParam Long managerId) {
         return leaveService.approveLeave(id, managerId);
     }
 

@@ -5,7 +5,6 @@ import com.centegy.ems.model.LeaveBalance;
 import com.centegy.ems.model.enums.LeaveType;
 import com.centegy.ems.repository.EmployeeRepository;
 import com.centegy.ems.repository.LeaveBalanceRepository;
-import com.centegy.ems.repository.LeaveRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,12 +13,10 @@ import java.util.List;
 public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
-    private final LeaveRepository leaveRepository;
     private final LeaveBalanceRepository leaveBalanceRepository;
 
-    public EmployeeService(EmployeeRepository employeeRepository, LeaveRepository leaveRepository, LeaveBalanceRepository leaveBalanceRepository) {
+    public EmployeeService(EmployeeRepository employeeRepository, LeaveBalanceRepository leaveBalanceRepository) {
         this.employeeRepository = employeeRepository;
-        this.leaveRepository = leaveRepository;
         this.leaveBalanceRepository = leaveBalanceRepository;
     }
 
@@ -59,19 +56,19 @@ public class EmployeeService {
     }
 
 
-    public Employee getEmployeeByID(int id) {
+    public Employee getEmployeeByID(Long id) {
         return employeeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Employee not found with ID: " + id));
     }
 
-    public void deleteEmployee(Integer id) {
+    public void deleteEmployee(Long id) {
 
         if (!employeeRepository.existsById(id)) {
             throw new RuntimeException("Cannot delete. Employee not found with ID: " + id);
         }
     }
 
-    public Employee updateEmployee(Integer id, Employee updatedData) {
+    public Employee updateEmployee(Long id, Employee updatedData) {
 
         Employee employee = getEmployeeByID(id);
 
@@ -115,7 +112,7 @@ public class EmployeeService {
         return "All legacy employees have been fixed and given all 3 leave types";
     }
 
-    public Employee addDocument(Integer id,String documentType , String documentUrl) {
+    public Employee addDocument(Long id,String documentType , String documentUrl) {
         Employee employee = getEmployeeByID(id);
 
         try {

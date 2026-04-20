@@ -2,60 +2,21 @@ package com.centegy.ems.repository;
 
 
 import com.centegy.ems.model.AssetHistory;
+import com.centegy.ems.model.enums.AssetStatus;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
-public class AssetHistoryRepository {
+public interface AssetHistoryRepository extends JpaRepository<AssetHistory, Long> {
 
-    private final List<AssetHistory> assetHistoryList = new ArrayList<>();
+    List<AssetHistory> findByAssetId(Long assetId);
 
-    private final AtomicInteger idGenerator = new AtomicInteger(1);
+    Optional<AssetHistory> findByAssetIdAndReturnDateIsNull(Long assetId);
 
-    public  AssetHistory save(AssetHistory assetHistory) {
-        if(assetHistory.getId() == null) {
-            assetHistory.setId(idGenerator.getAndIncrement());
-            assetHistoryList.add(assetHistory);
-
-        } else  {
-            int index = -1;
-            for( int i = 0; i < assetHistoryList.size(); i++ ) {
-                if(assetHistoryList.get(i).getId().equals(assetHistory.getId())) {
-                    index = i;
-                    break;
-                }
-           }
-            if(index == -1) {
-                assetHistoryList.set(index, assetHistory);
-
-            }
-
-        }
-        return assetHistory;
-    }
-
-    public AssetHistory findAssetHistory(Integer assetId) {
-
-
-        for(AssetHistory assetHistory : assetHistoryList) {
-            if(assetHistory.getAssetId().equals(assetId) && assetHistory.getReturnDate() == null) {
-                return assetHistory;
-            }
-        }
-        return null;
-    }
-
-    public List<AssetHistory> getHistoryByAssetId(Integer assetId) {
-        List<AssetHistory> history = new ArrayList<>();
-        for (AssetHistory ah : assetHistoryList) {
-            if (ah.getAssetId().equals(assetId)) {
-                history.add(ah);
-            }
-        }
-        return history;
-    }
 
 }

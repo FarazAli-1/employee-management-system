@@ -6,6 +6,7 @@ import com.centegy.ems.model.Leave;
 import com.centegy.ems.model.LeaveBalance;
 import com.centegy.ems.model.enums.LeaveStatus;
 import com.centegy.ems.model.enums.LeaveType;
+import com.centegy.ems.repository.LeaveBalanceRepository;
 import com.centegy.ems.repository.LeaveRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +19,14 @@ public class LeaveService {
 
     private final LeaveRepository leaveRepository;
     private final EmployeeService employeeService;
+    private final LeaveBalanceRepository leaveBalanceRepository;
 
 
-    public LeaveService(LeaveRepository leaveRepository, EmployeeService employeeService) {
+    public LeaveService(LeaveRepository leaveRepository, EmployeeService employeeService, LeaveBalanceRepository leaveBalanceRepository) {
         this.leaveRepository = leaveRepository;
         this.employeeService = employeeService;
+        this.leaveBalanceRepository = leaveBalanceRepository;
     }
-
 
 
     public Leave applyForLeave(Leave leave) {
@@ -35,7 +37,7 @@ public class LeaveService {
 
         long daysRequested = calculateDays(leave.getStartDate(),leave.getEndDate());
 
-        LeaveBalance balance = leaveRepository.getBalanceByEmployeeId(leave.getEmployeeId(), leave.getLeaveType())
+        LeaveBalance balance = leaveBalanceRepository.findByEmployeeIdAndLeaveType(leave.getEmployee().getId(), leave.getLeaveType())
                 .orElseThrow(() -> new RuntimeException("Leave Balance not found for this employee!"));
 
 
@@ -51,15 +53,15 @@ public class LeaveService {
     }
 
     public List<Leave> getAllLeaves() {
-        return leaveRepository.getAllLeaves();
+        return leaveRepository.findAll();
     }
 
-    public Leave getLeaveById(Integer id) {
-        return leaveRepository.getLeaveById(id)
+    public Leave getLeaveById(Long id) {
+        return leaveRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Leave record not found with ID: " + id));
     }
 
-    public Leave updateLeave(Integer id, Leave updatedData) {
+    public Leave updateLeave(Long id, Leave updatedData) {
         Leave existing = getLeaveById(id);
 
 
@@ -72,41 +74,41 @@ public class LeaveService {
         return leaveRepository.save(existing);
     }
 
-    public void deleteLeave(Integer id) {
-        boolean isDeleted = leaveRepository.deleteById(id);
-        if (!isDeleted) {
+    public void deleteLeave(Long id) {
+
+        if (!leaveRepository.existsById(id)) {
             throw new RuntimeException("Cannot delete. Leave record not found with ID: " + id);
         }
     }
 
-    public Leave approveLeave(Integer id, Integer managerId) {
+    public Leave approveLeave(Long id, Long managerId) {
         Leave leave = getLeaveById(id);
-        Employee requester = employeeService.getEmployeeByID(leave.getEmployeeId());
+        Employee requester = employeeService.getEmployeeByID(leave.getEmployee().getId());
 
-        if (requester.getManager() == null || !requester.getManager().equals(managerId)) {
+        if (requester.getManager() == null || !requester.getManager().getId().equals(managerId)) {
             throw new RuntimeException("Unauthorized: Only the employee's assigned manager can approve this leave.");
         }
 
         long daysRequested = calculateDays(leave.getStartDate(), leave.getEndDate());
-        LeaveBalance balance = leaveRepository.getBalanceByEmployeeId(requester.getId(),  leave.getLeaveType())
+        LeaveBalance balance = leaveBalanceRepository.findByEmployeeIdAndLeaveType(requester.getId(),  leave.getLeaveType())
                 .orElseThrow(() -> new RuntimeException("Leave Balance not found!"));
 
         balance.setRemainingDays(balance.getRemainingDays()- (int) daysRequested);
 
 
         leave.setStatus(LeaveStatus.APPROVED);
-        leave.setApprovedBy(managerId);
+        leave.setApprovedBy(requester.getManager());
         return leaveRepository.save(leave);
     }
 
-    public List<Leave> getAllLeavesByEmployeeId(Integer employeeId) {
-        return leaveRepository.getLeavesListByEmployee(employeeId);
+    public List<Leave> getAllLeavesByEmployeeId(Long employeeId) {
+        return leaveRepository.findByEmployeeId(employeeId);
     }
 
-    public List<Leave> leaveCalender(Integer requesterId) {
+    public List<Leave> leaveCalender(Long requesterId) {
 
         Employee requester = employeeService.getEmployeeByID(requesterId);
-        int teamBossId;
+        Long teamBossId;
 
         if (requester.getManager() != null) {
             teamBossId = requester.getManager().getId();
@@ -114,7 +116,7 @@ public class LeaveService {
             teamBossId = requester.getId();
         }
 
-        List<Integer> teamIds = new ArrayList<>();
+        List<Long> teamIds = new ArrayList<>();
         teamIds.add(teamBossId);
         List<Employee> allEmployees =  employeeService.getAllEmployees();
 
@@ -124,12 +126,12 @@ public class LeaveService {
             }
         }
 
-        List<Leave> leaves = leaveRepository.getAllLeaves();
+        List<Leave> leaves = leaveRepository.findAll();
 
         List<Leave> leaveList = new ArrayList<>();
 
         for (Leave leave : leaves) {
-            if(LeaveStatus.APPROVED.equals(leave.getStatus()) && teamIds.contains(leave.getEmployeeId())) {
+            if(LeaveStatus.APPROVED.equals(leave.getStatus()) && teamIds.contains(leave.getEmployee().getId())) {
                 leaveList.add(leave);
             }
         }

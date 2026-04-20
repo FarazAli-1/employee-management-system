@@ -1,10 +1,12 @@
 package com.centegy.ems.service;
 
 import com.centegy.ems.model.Attendance;
+import com.centegy.ems.model.Employee;
 import com.centegy.ems.model.enums.AttendanceStatus;
 import com.centegy.ems.repository.AttendanceRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -12,12 +14,20 @@ import java.util.List;
 public class AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
+    private final EmployeeService employeeService;
 
-    public AttendanceService(AttendanceRepository attendanceRepository) {
+    public AttendanceService(AttendanceRepository attendanceRepository, EmployeeService employeeService) {
         this.attendanceRepository = attendanceRepository;
+        this.employeeService = employeeService;
     }
 
     public Attendance checkIn(Attendance attendance) {
+
+        Employee realEmployee = employeeService.getEmployeeByID(attendance.getEmployee().getId());
+
+        attendance.setEmployee(realEmployee);
+
+        attendance.setAttendanceDate(LocalDate.now());
 
         LocalTime startOfDay = LocalTime.of(9, 0);
         LocalTime checkInTime = attendance.getCheckInTime();
@@ -30,7 +40,10 @@ public class AttendanceService {
         return attendanceRepository.save(attendance);
     }
 
-    public Attendance checkOut(Integer attendanceId, LocalTime checkOutTime) {
+
+
+    public Attendance checkOut(Long attendanceId, LocalTime checkOutTime) {
+
 
 
         Attendance attendance =  attendanceRepository.findById(attendanceId)
@@ -50,7 +63,7 @@ public class AttendanceService {
         return attendanceRepository.save(attendance);
     }
 
-    public Attendance findAttendanceById(Integer id) {
+    public Attendance findAttendanceById(Long id) {
         return  attendanceRepository.findById(id).orElseThrow(() -> new RuntimeException("Attendance not found with ID: " + id));
     }
 
@@ -58,14 +71,14 @@ public class AttendanceService {
         return attendanceRepository.findAll();
     }
 
-    public void deleteAttendanceById(Integer id) {
-        boolean isDeleted = attendanceRepository.deleteById(id);
-        if (!isDeleted) {
+    public void deleteAttendanceById(Long id) {
+
+        if (!attendanceRepository.existsById(id)) {
             throw new RuntimeException("Cannot delete. Attendance not found with ID: " + id);
         }
     }
 
-    public Attendance updateAttendance(Integer id, Attendance updatedData) {
+    public Attendance updateAttendance(Long id, Attendance updatedData) {
 
         Attendance attendance = findAttendanceById(id);
         attendance.setAttendanceDate(updatedData.getAttendanceDate());

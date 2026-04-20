@@ -8,8 +8,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface LeaveBalanceRepository extends JpaRepository<LeaveBalance, Integer> {
+public interface LeaveBalanceRepository extends JpaRepository<LeaveBalance, Long> {
 
-    Optional<LeaveBalance> findByEmployeeIdAndLeaveType(Integer employeeId, LeaveType leaveType);
+    Optional<LeaveBalance> findByEmployeeIdAndLeaveType(Long employeeId, LeaveType leaveType);
 
 }

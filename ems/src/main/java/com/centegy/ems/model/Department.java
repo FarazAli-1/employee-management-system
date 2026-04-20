@@ -1,5 +1,6 @@
 package com.centegy.ems.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -17,12 +18,13 @@ public class Department {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @NotBlank(message = "Department name is required")
     private String name;
     private Integer headOfDepartmentId;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "department")
     private List<Role> roles = new ArrayList<>();
 

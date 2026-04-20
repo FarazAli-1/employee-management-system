@@ -11,6 +11,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
-public interface RoleRepository extends JpaRepository<Role,Integer> {
+public interface RoleRepository extends JpaRepository<Role,Long> {
 
 }

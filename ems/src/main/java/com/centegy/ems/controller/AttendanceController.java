@@ -30,21 +30,21 @@ public class AttendanceController {
     }
 
     @GetMapping("/{id}")
-    public Attendance getAttendanceById(@PathVariable Integer id) {
+    public Attendance getAttendanceById(@PathVariable Long id) {
         return attendanceService.findAttendanceById(id);
     }
 
     @PutMapping("/{id}")
-    public Attendance updateAttendance(@PathVariable Integer id, @Valid @RequestBody Attendance attendance) {
+    public Attendance updateAttendance(@PathVariable Long id, @Valid @RequestBody Attendance attendance) {
         return attendanceService.updateAttendance(id, attendance);
     }
 
     @PutMapping("/checkout/{id}")
-    public Attendance checkOut(@PathVariable Integer id, @RequestParam LocalTime checkOutTime) {
+    public Attendance checkOut(@PathVariable Long id, @RequestParam LocalTime checkOutTime) {
         return attendanceService.checkOut(id, checkOutTime);
     }
     @DeleteMapping("/{id}")
-    public void deleteAttendance(@PathVariable Integer id) {
+    public void deleteAttendance(@PathVariable Long id) {
         attendanceService.deleteAttendanceById(id);
     }
 

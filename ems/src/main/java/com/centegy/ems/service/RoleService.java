@@ -11,7 +11,7 @@ import java.util.List;
 public class RoleService {
 
     private final RoleRepository roleRepository;
-    private final DepartmentService departmentService; // ADD THIS
+    private final DepartmentService departmentService;
 
     public RoleService(RoleRepository roleRepository, DepartmentService departmentService) {
         this.roleRepository = roleRepository;
@@ -20,7 +20,7 @@ public class RoleService {
 
     public Role createRole(Role role) {
 
-        Integer deptId = role.getDepartment().getId();
+        Long deptId = role.getDepartment().getId();
         Department realDepartment = departmentService.getDepartmentById(deptId);
         role.setDepartment(realDepartment);
 
@@ -31,7 +31,7 @@ public class RoleService {
         return roleRepository.findAll();
     }
 
-    public Role getRoleByID(Integer id) {
+    public Role getRoleByID(Long id) {
         return roleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Role not found with ID: " + id));
     }

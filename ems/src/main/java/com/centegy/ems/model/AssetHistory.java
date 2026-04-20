@@ -1,64 +1,40 @@
 package com.centegy.ems.model;
 
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDate;
 
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Entity
 public class AssetHistory {
 
-    private Integer id;
-    private Integer assetId;
-    private Integer employeeId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "asset_id")
+    private Asset asset;
+
+    @ManyToOne
+    @JoinColumn(name = "employee_id")
+    private Employee employee;
+
+    @ManyToOne
+    @JoinColumn(name = "approved_by_id")
+    private Employee approvedBy;
+
     private LocalDate approvedDate;
+
     private LocalDate returnDate;
-    private Integer approvedBy;
 
-    public AssetHistory() {}
 
-    public Integer getApprovedBy() {
-        return approvedBy;
-    }
 
-    public void setApprovedBy(Integer approvedBy) {
-        this.approvedBy = approvedBy;
-    }
-
-    public LocalDate getApprovedDate() {
-        return approvedDate;
-    }
-
-    public void setApprovedDate(LocalDate approvedDate) {
-        this.approvedDate = approvedDate;
-    }
-
-    public Integer getAssetId() {
-        return assetId;
-    }
-
-    public void setAssetId(Integer assetId) {
-        this.assetId = assetId;
-    }
-
-    public Integer getEmployeeId() {
-        return employeeId;
-    }
-
-    public void setEmployeeId(Integer employeeId) {
-        this.employeeId = employeeId;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public LocalDate getReturnDate() {
-        return returnDate;
-    }
-
-    public void setReturnDate(LocalDate returnDate) {
-        this.returnDate = returnDate;
-    }
 }
