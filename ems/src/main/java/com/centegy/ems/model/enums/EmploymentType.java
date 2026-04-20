@@ -5,4 +5,8 @@ public enum EmploymentType {
     PART_TIME,
     CONTRACT,
     INTERN
+
+
+
+
 }

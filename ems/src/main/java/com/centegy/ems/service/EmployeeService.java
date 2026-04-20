@@ -4,6 +4,7 @@ import com.centegy.ems.model.Employee;
 import com.centegy.ems.model.LeaveBalance;
 import com.centegy.ems.model.enums.LeaveType;
 import com.centegy.ems.repository.EmployeeRepository;
+import com.centegy.ems.repository.LeaveBalanceRepository;
 import com.centegy.ems.repository.LeaveRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +15,12 @@ public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final LeaveRepository leaveRepository;
+    private final LeaveBalanceRepository leaveBalanceRepository;
 
-    public EmployeeService(EmployeeRepository employeeRepository, LeaveRepository leaveRepository) {
+    public EmployeeService(EmployeeRepository employeeRepository, LeaveRepository leaveRepository, LeaveBalanceRepository leaveBalanceRepository) {
         this.employeeRepository = employeeRepository;
         this.leaveRepository = leaveRepository;
+        this.leaveBalanceRepository = leaveBalanceRepository;
     }
 
 
@@ -27,28 +30,24 @@ public class EmployeeService {
 
         // Annual Leave
         LeaveBalance annual = new LeaveBalance();
-        annual.setEmployeeId(newEmployee.getId());
+        annual.setEmployee(newEmployee);
         annual.setLeaveType(LeaveType.ANNUAL);
         annual.setRemainingDays(20);
-        leaveRepository.saveBalance(annual);
-        newEmployee.getLeaveBalances().add(annual);
-
+        leaveBalanceRepository.save(annual);
 
         // Sick Leave
         LeaveBalance sick = new LeaveBalance();
-        sick.setEmployeeId(newEmployee.getId());
+        sick.setEmployee(newEmployee);
         sick.setLeaveType(LeaveType.SICK);
         sick.setRemainingDays(10);
-        leaveRepository.saveBalance(sick);
-        newEmployee.getLeaveBalances().add(sick);
+        leaveBalanceRepository.save(sick);
 
         // Casual Leave
         LeaveBalance casual = new LeaveBalance();
-        casual.setEmployeeId(newEmployee.getId());
+        casual.setEmployee(newEmployee);
         casual.setLeaveType(LeaveType.CASUAL);
         casual.setRemainingDays(5);
-        leaveRepository.saveBalance(casual);
-        newEmployee.getLeaveBalances().add(casual);
+        leaveBalanceRepository.save(casual);
 
         return newEmployee;
 
@@ -66,8 +65,8 @@ public class EmployeeService {
     }
 
     public void deleteEmployee(Integer id) {
-        boolean isDeleted = employeeRepository.deleteById(id);
-        if (!isDeleted) {
+
+        if (!employeeRepository.existsById(id)) {
             throw new RuntimeException("Cannot delete. Employee not found with ID: " + id);
         }
     }
@@ -80,7 +79,7 @@ public class EmployeeService {
         employee.setLastName(updatedData.getLastName());
         employee.setEmail(updatedData.getEmail());
         employee.setPhone(updatedData.getPhone());
-        employee.setRoleId(updatedData.getRoleId());
+        employee.setRole(updatedData.getRole());
 
         return employeeRepository.save(employee);
     }
@@ -89,32 +88,27 @@ public class EmployeeService {
         List<Employee> employees = getAllEmployees();
 
         for (Employee employee : employees) {
-            if (leaveRepository.getBalanceByEmployeeId(employee.getId(), LeaveType.ANNUAL).isEmpty()) {
+            if (leaveBalanceRepository.findByEmployeeIdAndLeaveType(employee.getId(), LeaveType.ANNUAL).isEmpty()) {
 
-                // Annual Leave
                 LeaveBalance annual = new LeaveBalance();
-                annual.setEmployeeId(employee.getId());
+                annual.setEmployee(employee);
                 annual.setLeaveType(LeaveType.ANNUAL);
                 annual.setRemainingDays(20);
-                leaveRepository.saveBalance(annual);
-                employee.getLeaveBalances().add(annual);
-
+                leaveBalanceRepository.save(annual);
 
                 // Sick Leave
                 LeaveBalance sick = new LeaveBalance();
-                sick.setEmployeeId(employee.getId());
+                sick.setEmployee(employee);
                 sick.setLeaveType(LeaveType.SICK);
                 sick.setRemainingDays(10);
-                leaveRepository.saveBalance(sick);
-                employee.getLeaveBalances().add(annual);
+                leaveBalanceRepository.save(sick);
 
                 // Casual Leave
                 LeaveBalance casual = new LeaveBalance();
-                casual.setEmployeeId(employee.getId());
+                casual.setEmployee(employee);
                 casual.setLeaveType(LeaveType.CASUAL);
                 casual.setRemainingDays(5);
-                leaveRepository.saveBalance(casual);
-                employee.getLeaveBalances().add(annual);
+                leaveBalanceRepository.save(casual);
 
             }
         }

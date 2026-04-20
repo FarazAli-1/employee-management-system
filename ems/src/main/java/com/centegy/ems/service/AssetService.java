@@ -126,7 +126,7 @@ public class AssetService {
 
     public void validateRoleStatus(Integer id) {
         Employee employee = employeeService.getEmployeeByID(id);
-        Role role = roleService.getRoleByID(employee.getRoleId());
+        Role role = employee.getRole();
 
        if (role.getRoleLevel().getLevel() > 2){
            throw new RuntimeException("Access Denied: You do not have the required rank to perform this action.");

@@ -83,7 +83,7 @@ public class LeaveService {
         Leave leave = getLeaveById(id);
         Employee requester = employeeService.getEmployeeByID(leave.getEmployeeId());
 
-        if (requester.getManagerId() == null || !requester.getManagerId().equals(managerId)) {
+        if (requester.getManager() == null || !requester.getManager().equals(managerId)) {
             throw new RuntimeException("Unauthorized: Only the employee's assigned manager can approve this leave.");
         }
 
@@ -108,8 +108,8 @@ public class LeaveService {
         Employee requester = employeeService.getEmployeeByID(requesterId);
         int teamBossId;
 
-        if (requester.getManagerId() != null) {
-            teamBossId = requester.getManagerId();
+        if (requester.getManager() != null) {
+            teamBossId = requester.getManager().getId();
         } else {
             teamBossId = requester.getId();
         }
@@ -119,7 +119,7 @@ public class LeaveService {
         List<Employee> allEmployees =  employeeService.getAllEmployees();
 
         for (Employee emp : allEmployees) {
-            if(emp.getManagerId() != null && emp.getManagerId().equals(teamBossId)) {
+            if(emp.getManager() != null && emp.getManager().getId().equals(teamBossId)) {
                 teamIds.add(emp.getId());
             }
         }

@@ -71,7 +71,7 @@ public class LeaveRepository {
 
     public Optional<LeaveBalance> getBalanceByEmployeeId(Integer employeeId, LeaveType leaveType) {
         return balanceList.stream()
-                .filter(b -> b.getEmployeeId().equals(employeeId) &&  b.getLeaveType() == leaveType)
+                .filter(b -> b.getEmployee().getId().equals(employeeId) &&  b.getLeaveType() == leaveType)
                 .findFirst();
     }
 
