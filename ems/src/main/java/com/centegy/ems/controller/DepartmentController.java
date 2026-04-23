@@ -1,5 +1,7 @@
 package com.centegy.ems.controller;
 
+import com.centegy.ems.dto.request.DepartmentRequestDTO;
+import com.centegy.ems.dto.response.DepartmentResponseDTO;
 import com.centegy.ems.model.Department;
 import com.centegy.ems.service.DepartmentService;
 import jakarta.validation.Valid;
@@ -18,17 +20,17 @@ public class DepartmentController {
     }
 
     @PostMapping
-    public Department createDepartment(@Valid @RequestBody Department department) {
-        return departmentService.createDepartment(department);
+    public DepartmentResponseDTO createDepartment(@Valid @RequestBody DepartmentRequestDTO requestDTO) {
+        return departmentService.createDepartment(requestDTO);
     }
 
     @GetMapping
-    public List<Department> getAllDepartments() {
+    public List<DepartmentResponseDTO> getAllDepartments() {
         return departmentService.getAllDepartments();
     }
 
     @GetMapping("/{id}")
-    public Department getDepartmentById(@PathVariable Long id) {
+    public DepartmentResponseDTO getDepartmentById(@PathVariable Long id) {
         return departmentService.getDepartmentById(id);
     }
 

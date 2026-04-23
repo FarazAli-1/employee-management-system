@@ -1,7 +1,11 @@
 package com.centegy.ems.service;
 
+import com.centegy.ems.dto.request.RoleRequestDTO;
+import com.centegy.ems.dto.response.RoleResponseDTO;
+import com.centegy.ems.mapper.RoleMapper;
 import com.centegy.ems.model.Department;
 import com.centegy.ems.model.Role;
+import com.centegy.ems.repository.DepartmentRepository;
 import com.centegy.ems.repository.RoleRepository;
 import org.springframework.stereotype.Service;
 
@@ -11,28 +15,42 @@ import java.util.List;
 public class RoleService {
 
     private final RoleRepository roleRepository;
-    private final DepartmentService departmentService;
+    private final RoleMapper roleMapper;
+    private final DepartmentRepository departmentRepository;
 
-    public RoleService(RoleRepository roleRepository, DepartmentService departmentService) {
+    public RoleService(RoleRepository roleRepository, RoleMapper roleMapper, DepartmentRepository departmentRepository) {
         this.roleRepository = roleRepository;
-        this.departmentService = departmentService;
+        this.roleMapper = roleMapper;
+        this.departmentRepository = departmentRepository;
     }
 
-    public Role createRole(Role role) {
+    public RoleResponseDTO createRole(RoleRequestDTO requestDTO) {
 
-        Long deptId = role.getDepartment().getId();
-        Department realDepartment = departmentService.getDepartmentById(deptId);
-        role.setDepartment(realDepartment);
+            Department realDepartment = departmentRepository.findById(requestDTO.getDepartmentId())
+                    .orElseThrow(() -> new RuntimeException("Department not found with ID: " + requestDTO.getDepartmentId()));
 
-        return roleRepository.save(role);
+            Role role = roleMapper.toEntity(requestDTO);
+
+            role.setDepartment(realDepartment);
+
+            Role savedRole = roleRepository.save(role);
+            return  roleMapper.roleResponseDTO(savedRole);
+
     }
 
-    public List<Role> getAllRoles() {
-        return roleRepository.findAll();
+    public List<RoleResponseDTO> getAllRoles() {
+
+        List<Role> roles = roleRepository.findAll();
+
+        return roles.stream().map(roleMapper::roleResponseDTO).toList();
     }
 
-    public Role getRoleByID(Long id) {
-        return roleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Role not found with ID: " + id));
+    public RoleResponseDTO getRoleByID(Long id) {
+
+        Role role = roleRepository.findById(id).
+                orElseThrow(() -> new RuntimeException("Role not found with ID: " + id));
+
+        return roleMapper.roleResponseDTO(role);
     }
+
 }
