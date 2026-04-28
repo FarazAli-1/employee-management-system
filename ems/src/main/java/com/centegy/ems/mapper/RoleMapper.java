@@ -2,7 +2,6 @@ package com.centegy.ems.mapper;
 
 import com.centegy.ems.dto.request.RoleRequestDTO;
 import com.centegy.ems.dto.response.RoleResponseDTO;
-import com.centegy.ems.model.Department;
 import com.centegy.ems.model.Role;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +22,7 @@ public class RoleMapper {
 
         roleDTO.setId(role.getId());
         roleDTO.setTitle(role.getTitle());
-        roleDTO.setDepartment(departmentMapper.toResponseDTO(role.getDepartment()));
+        roleDTO.setDepartment(departmentMapper.toDepartmentResponseDTO(role.getDepartment()));
         roleDTO.setRoleRank(role.getRoleLevel());
 
         return roleDTO;

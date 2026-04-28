@@ -12,7 +12,6 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -50,8 +49,6 @@ public class Employee {
     @ManyToOne
     @JoinColumn(name = "manager_id")
     private Employee manager;
-
-//    private List<LeaveBalance> leaveBalances = new ArrayList<>();
 
 
 }

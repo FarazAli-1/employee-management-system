@@ -1,5 +1,9 @@
 package com.centegy.ems.controller;
 
+import com.centegy.ems.dto.request.AssetRequestDTO;
+import com.centegy.ems.dto.response.AssetHistoryResponseDTO;
+import com.centegy.ems.dto.response.AssetResponseDTO;
+import com.centegy.ems.dto.response.PageResponseDTO;
 import com.centegy.ems.model.Asset;
 import com.centegy.ems.model.AssetHistory;
 import com.centegy.ems.service.AssetService;
@@ -19,37 +23,42 @@ public class AssetController {
     }
 
     @PostMapping
-    public Asset createAsset(@Valid @RequestBody Asset asset) {
-        return assetService.createAsset(asset);
+    public AssetResponseDTO createAsset(@Valid @RequestBody AssetRequestDTO assetRequestDTO) {
+        return assetService.createAsset(assetRequestDTO);
     }
 
     @GetMapping
-    public List<Asset> getAllAssets() {
-        return assetService.getAllAssets();
+    public PageResponseDTO<AssetResponseDTO> getAllAssets(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir
+    ){
+        return assetService.getAllAssets(pageNo, pageSize, sortBy, sortDir);
     }
 
     @GetMapping("/{id}")
-    public Asset getAssetById(@PathVariable Long id) {
+    public AssetResponseDTO getAssetById(@PathVariable Long id) {
         return assetService.getAssetById(id);
     }
 
     @GetMapping("/{id}/history")
-    public List<AssetHistory> getAssetHistory(@PathVariable Long id) {
+    public List<AssetHistoryResponseDTO> getAssetHistory(@PathVariable Long id) {
         return assetService.getAssetHistory(id);
     }
 
     @PutMapping("/{id}")
-    public Asset updateAsset(@PathVariable Long id, @Valid @RequestBody Asset asset, @RequestParam Long performerID) {
-        return assetService.updateAsset(id, asset,  performerID);
+    public AssetResponseDTO updateAsset(@PathVariable Long id, @Valid @RequestBody AssetRequestDTO assetRequestDTO, @RequestParam Long performerID) {
+        return assetService.updateAsset(id, assetRequestDTO,  performerID);
     }
 
     @PutMapping("/{id}/return")
-    public Asset returnAsset(@PathVariable Long id, @Valid @RequestParam Long employeeId) {
+    public AssetResponseDTO returnAsset(@PathVariable Long id, @Valid @RequestParam Long employeeId) {
         return assetService.returnAsset(id, employeeId);
     }
 
     @PutMapping("/{id}/approve")
-    public Asset approveAsset(@PathVariable Long id, @Valid @RequestParam Long approverId) {
+    public AssetResponseDTO approveAsset(@PathVariable Long id, @Valid @RequestParam Long approverId) {
         return assetService.approveAsset(id, approverId);
     }
 

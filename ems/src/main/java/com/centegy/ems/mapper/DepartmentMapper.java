@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DepartmentMapper {
 
-    public DepartmentResponseDTO toResponseDTO(Department department) {
+    public DepartmentResponseDTO toDepartmentResponseDTO(Department department) {
         if (department == null) return null;
 
         DepartmentResponseDTO departmentResponseDTO = new DepartmentResponseDTO();

@@ -1,4 +1,4 @@
-package com.centegy.ems.exception;
+package com.centegy.ems.advices;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

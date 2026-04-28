@@ -1,6 +1,9 @@
 package com.centegy.ems.controller;
 
 
+import com.centegy.ems.dto.request.LeaveRequestDTO;
+import com.centegy.ems.dto.response.LeaveResponseDTO;
+import com.centegy.ems.dto.response.PageResponseDTO;
 import com.centegy.ems.model.Leave;
 import com.centegy.ems.service.LeaveService;
 import jakarta.validation.Valid;
@@ -19,34 +22,39 @@ public class LeaveController {
     }
 
     @PostMapping
-    public Leave applyForLeave(@Valid @RequestBody Leave leave) {
-        return leaveService.applyForLeave(leave);
+    public LeaveResponseDTO applyForLeave(@Valid @RequestBody LeaveRequestDTO leaveRequestDTO) {
+        return leaveService.applyForLeave(leaveRequestDTO);
     }
 
     @GetMapping
-    public List<Leave> getAllLeaves() {
-        return leaveService.getAllLeaves();
+    public PageResponseDTO<LeaveResponseDTO> getAllLeaves(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false)int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false)int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "id", required = false)String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "asc", required = false)String sortDir
+    ) {
+        return leaveService.getAllLeaves(pageNo, pageSize, sortBy, sortDir);
     }
 
     @GetMapping("/{id}")
-    public Leave getLeaveById(@PathVariable Long id) {
+    public LeaveResponseDTO getLeaveById(@PathVariable Long id) {
         return leaveService.getLeaveById(id);
     }
 
     @GetMapping("/calender/{requesterId}")
-    public List<Leave> getTeamCalender(@PathVariable Long requesterId) {
+    public List<LeaveResponseDTO> getTeamCalender(@PathVariable Long requesterId) {
         return leaveService.leaveCalender(requesterId);
     }
 
    
     @GetMapping("/employee/{EId}")
-    public List<Leave> getLeaveByEmployeeId(@PathVariable Long EId) {
+    public List<LeaveResponseDTO> getLeaveByEmployeeId(@PathVariable Long EId) {
         return leaveService.getAllLeavesByEmployeeId(EId);
     }
 
     @PutMapping("/{id}")
-    public Leave updateLeave(@PathVariable Long id, @Valid @RequestBody Leave leave) {
-        return leaveService.updateLeave(id, leave);
+    public LeaveResponseDTO updateLeave(@PathVariable Long id, @Valid @RequestBody LeaveRequestDTO leaveRequestDTO) {
+        return leaveService.updateLeave(id, leaveRequestDTO);
     }
 
     @DeleteMapping("/{id}")
@@ -55,7 +63,7 @@ public class LeaveController {
     }
 
     @PutMapping("/{id}/approve")
-    public Leave approveLeave(@PathVariable Long id, @RequestParam Long managerId) {
+    public LeaveResponseDTO approveLeave(@PathVariable Long id, @RequestParam Long managerId) {
         return leaveService.approveLeave(id, managerId);
     }
 

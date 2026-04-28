@@ -1,5 +1,11 @@
 package com.centegy.ems.service;
 
+import com.centegy.ems.dto.request.AssetRequestDTO;
+import com.centegy.ems.dto.response.AssetHistoryResponseDTO;
+import com.centegy.ems.dto.response.AssetResponseDTO;
+import com.centegy.ems.dto.response.PageResponseDTO;
+import com.centegy.ems.mapper.AssetHistoryMapper;
+import com.centegy.ems.mapper.AssetMapper;
 import com.centegy.ems.model.Asset;
 import com.centegy.ems.model.AssetHistory;
 import com.centegy.ems.model.Employee;
@@ -7,6 +13,9 @@ import com.centegy.ems.model.Role;
 import com.centegy.ems.model.enums.AssetStatus;
 import com.centegy.ems.repository.AssetHistoryRepository;
 import com.centegy.ems.repository.AssetRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -18,50 +27,87 @@ public class AssetService {
     private final AssetRepository assetRepository;
     private final EmployeeService employeeService;
     private final AssetHistoryRepository assetHistoryRepository;
+    private final AssetMapper assetMapper;
+    private final AssetHistoryMapper assetHistoryMapper;
 
-    public AssetService(AssetRepository assetRepository, EmployeeService employeeService, AssetHistoryRepository assetHistoryRepository) {
+
+    public AssetService(AssetRepository assetRepository, EmployeeService employeeService, AssetHistoryRepository assetHistoryRepository, AssetMapper assetMapper, AssetHistoryMapper assetHistoryMapper) {
         this.assetRepository = assetRepository;
         this.employeeService = employeeService;
         this.assetHistoryRepository = assetHistoryRepository;
+        this.assetMapper = assetMapper;
+        this.assetHistoryMapper = assetHistoryMapper;
     }
 
-    public Asset createAsset(Asset asset) {
+    public AssetResponseDTO createAsset(AssetRequestDTO assetRequestDTO) {
 
-        Employee realEmployee = employeeService.getEmployeeByID(asset.getEmployee().getId());
+        Asset asset = assetMapper.toEntity(assetRequestDTO);
+
+        Employee realEmployee = employeeService.getEmployeeEntityByID(assetRequestDTO.getEmployeeId());
         asset.setEmployee(realEmployee);
 
         if (asset.getStatus() == null ) {
                 asset.setStatus(AssetStatus.REQUESTED);
         }
 
+        return assetMapper.toAssetResponseDTO(assetRepository.save(asset));
 
-        return assetRepository.save(asset);
     }
 
-    public List<Asset> getAllAssets() {
-        return assetRepository.findAll();
+    public PageResponseDTO<AssetResponseDTO> getAllAssets(int pageNo, int pageSize, String sortBy, String sortDir) {
+
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        PageRequest pageRequest = PageRequest.of(pageNo, pageSize, sort);
+
+        Page<Asset> assetPage = assetRepository.findAll(pageRequest);
+        List<Asset> assetsList = assetPage.getContent();
+        List<AssetResponseDTO> content = assetsList.stream().map(assetMapper::toAssetResponseDTO).toList();
+
+        PageResponseDTO<AssetResponseDTO> response = new PageResponseDTO<>();
+
+        response.setContent(content);
+        response.setPageNo(assetPage.getNumber());
+        response.setPageSize(assetPage.getSize());
+        response.setTotalElements(assetPage.getTotalElements());
+        response.setTotalPages(assetPage.getTotalPages());
+        response.setLast(assetPage.isLast());
+
+        return response;
+
+
+
     }
 
-    public Asset getAssetById(Long id) {
+
+
+    public Asset getAssetEntityById(Long id) {
         return assetRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Asset not found with ID: " + id));
     }
 
-    public Asset updateAsset(Long id, Asset updatedData,Long performerID) {
+    public AssetResponseDTO getAssetById(Long id) {
 
-        Asset asset = getAssetById(id);
+        Asset asset = assetRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Asset not found with ID: " + id));
+
+        return assetMapper.toAssetResponseDTO(asset);
+    }
+
+    public AssetResponseDTO updateAsset(Long id, AssetRequestDTO updatedData,Long performerID) {
+
+
+        Asset asset = getAssetEntityById(id);
         validateRoleStatus(performerID);
 
-        Employee Realemployee = employeeService.getEmployeeByID(updatedData.getEmployee().getId());
-
+        Employee Realemployee = employeeService.getEmployeeEntityByID(updatedData.getEmployeeId());
 
         asset.setAssetName(updatedData.getAssetName());
         asset.setAssetType(updatedData.getAssetType());
-        asset.setStatus(updatedData.getStatus());
         asset.setEmployee(Realemployee);
 
 
-        return assetRepository.save(asset);
+        return assetMapper.toAssetResponseDTO(assetRepository.save(asset));
     }
 
     public void deleteAsset(Long id, Long performerID) {
@@ -73,10 +119,9 @@ public class AssetService {
         }
     }
 
-    public Asset returnAsset(Long id, Long employeeId) {
-        Asset asset = getAssetById(id);
+    public AssetResponseDTO returnAsset(Long id, Long employeeId) {
 
-        employeeService.getEmployeeByID(employeeId);
+        Asset asset = getAssetEntityById(id);
 
 
         if (asset.getEmployee().getId() == null || !asset.getEmployee().getId().equals(employeeId)) {
@@ -91,18 +136,18 @@ public class AssetService {
             assetHistoryRepository.save(assetHistory);
         }
 
-
         asset.setEmployee(null);
         asset.setStatus(AssetStatus.RETURNED);
-        return assetRepository.save(asset);
+
+        return assetMapper.toAssetResponseDTO(assetRepository.save(asset));
     }
 
 
-    public Asset approveAsset(Long id, Long approverId) {
-        Asset asset = getAssetById(id);
+    public AssetResponseDTO approveAsset(Long id, Long approverId) {
+        Asset asset = getAssetEntityById(id);
         validateRoleStatus(approverId);
 
-        Employee realEmployee = employeeService.getEmployeeByID(approverId);
+        Employee realEmployee = employeeService.getEmployeeEntityByID(approverId);
 
 
         asset.setStatus(AssetStatus.APPROVED);
@@ -115,16 +160,20 @@ public class AssetService {
         assetHistory.setApprovedDate(LocalDate.now());
         assetHistoryRepository.save(assetHistory);
 
-        return assetRepository.save(asset);
+
+        return assetMapper.toAssetResponseDTO(assetRepository.save(asset));
     }
 
-    public List<AssetHistory> getAssetHistory(Long assetId) {
-        getAssetById(assetId);
-        return assetHistoryRepository.findByAssetId(assetId);
+    public List<AssetHistoryResponseDTO> getAssetHistory(Long assetId) {
+
+        List<AssetHistory> assetHistory = assetHistoryRepository.findByAssetId(assetId);
+
+
+        return assetHistory.stream().map(assetHistoryMapper::toAssetHistoryResponseDTO).toList();
     }
 
     public void validateRoleStatus(Long id) {
-        Employee employee = employeeService.getEmployeeByID(id);
+        Employee employee = employeeService.getEmployeeEntityByID(id);
         Role role = employee.getRole();
 
        if (role.getRoleLevel().getLevel() > 2){

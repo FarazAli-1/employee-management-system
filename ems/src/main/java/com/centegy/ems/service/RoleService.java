@@ -7,6 +7,8 @@ import com.centegy.ems.model.Department;
 import com.centegy.ems.model.Role;
 import com.centegy.ems.repository.DepartmentRepository;
 import com.centegy.ems.repository.RoleRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +26,7 @@ public class RoleService {
         this.departmentRepository = departmentRepository;
     }
 
+    @CacheEvict(value = "roles",  allEntries = true)
     public RoleResponseDTO createRole(RoleRequestDTO requestDTO) {
 
             Department realDepartment = departmentRepository.findById(requestDTO.getDepartmentId())
@@ -38,6 +41,7 @@ public class RoleService {
 
     }
 
+    @Cacheable(value = "roles")
     public List<RoleResponseDTO> getAllRoles() {
 
         List<Role> roles = roleRepository.findAll();
@@ -45,6 +49,7 @@ public class RoleService {
         return roles.stream().map(roleMapper::roleResponseDTO).toList();
     }
 
+    @Cacheable(value="role", key="#id")
     public RoleResponseDTO getRoleByID(Long id) {
 
         Role role = roleRepository.findById(id).

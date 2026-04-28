@@ -1,13 +1,21 @@
 package com.centegy.ems.service;
 
+import com.centegy.ems.dto.request.AttendanceRequestDTO;
+import com.centegy.ems.dto.response.AttendanceResponseDTO;
+import com.centegy.ems.dto.response.PageResponseDTO;
+import com.centegy.ems.mapper.AttendanceMapper;
 import com.centegy.ems.model.Attendance;
 import com.centegy.ems.model.Employee;
 import com.centegy.ems.model.enums.AttendanceStatus;
 import com.centegy.ems.repository.AttendanceRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -15,15 +23,19 @@ public class AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
     private final EmployeeService employeeService;
+    private final AttendanceMapper  attendanceMapper;
 
-    public AttendanceService(AttendanceRepository attendanceRepository, EmployeeService employeeService) {
+    public AttendanceService(AttendanceRepository attendanceRepository, EmployeeService employeeService, AttendanceMapper attendanceMapper) {
         this.attendanceRepository = attendanceRepository;
         this.employeeService = employeeService;
+        this.attendanceMapper = attendanceMapper;
     }
 
-    public Attendance checkIn(Attendance attendance) {
+    public AttendanceResponseDTO checkIn(AttendanceRequestDTO attendanceRequestDTO) {
 
-        Employee realEmployee = employeeService.getEmployeeByID(attendance.getEmployee().getId());
+        Attendance attendance = attendanceMapper.toEntity(attendanceRequestDTO);
+
+        Employee realEmployee = employeeService.getEmployeeEntityByID(attendanceRequestDTO.getEmployeeId());
 
         attendance.setEmployee(realEmployee);
 
@@ -37,14 +49,15 @@ public class AttendanceService {
         } else {
             attendance.setStatus(AttendanceStatus.ON_TIME);
         }
-        return attendanceRepository.save(attendance);
+
+        Attendance saveAttendance = attendanceRepository.save(attendance);
+
+        return attendanceMapper.toAttendanceResponseDTO(saveAttendance);
     }
 
 
 
-    public Attendance checkOut(Long attendanceId, LocalTime checkOutTime) {
-
-
+    public AttendanceResponseDTO checkOut(Long attendanceId, LocalTime checkOutTime) {
 
         Attendance attendance =  attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new RuntimeException("Attendance record not found!"));
@@ -60,15 +73,46 @@ public class AttendanceService {
             }
         }
 
-        return attendanceRepository.save(attendance);
+        Attendance saveAttendance = attendanceRepository.save(attendance);
+
+        return attendanceMapper.toAttendanceResponseDTO(saveAttendance);
     }
 
-    public Attendance findAttendanceById(Long id) {
-        return  attendanceRepository.findById(id).orElseThrow(() -> new RuntimeException("Attendance not found with ID: " + id));
+    public Attendance findAttendanceEntityById(Long id) {
+
+       return attendanceRepository.findById(id).orElseThrow(() -> new RuntimeException("Attendance not found with ID: " + id));
+
     }
 
-    public List<Attendance> findAll() {
-        return attendanceRepository.findAll();
+    public AttendanceResponseDTO findAttendanceById(Long id) {
+
+        Attendance attendance = attendanceRepository.findById(id).orElseThrow(() -> new RuntimeException("Attendance not found with ID: " + id));
+
+        return  attendanceMapper.toAttendanceResponseDTO(attendance);
+    }
+
+    public PageResponseDTO<AttendanceResponseDTO> findAll(int pageNo, int pageSize, String sortBy, String sortDir) {
+
+
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        PageRequest pageRequest = PageRequest.of(pageNo, pageSize, sort);
+
+        Page<Attendance> attendancePage = attendanceRepository.findAll(pageRequest);
+        List<Attendance>  attendanceList = attendancePage.getContent();
+        List<AttendanceResponseDTO> content = attendanceList.stream().map(attendanceMapper::toAttendanceResponseDTO).toList();
+
+        PageResponseDTO<AttendanceResponseDTO> response = new PageResponseDTO<>();
+
+        response.setContent(content);
+        response.setPageNo(attendancePage.getNumber());
+        response.setPageSize(attendancePage.getSize());
+        response.setTotalPages(attendancePage.getTotalPages());
+        response.setTotalElements(attendancePage.getTotalElements());
+        response.setLast(attendancePage.isLast());
+
+        return response;
+
     }
 
     public void deleteAttendanceById(Long id) {
@@ -78,13 +122,16 @@ public class AttendanceService {
         }
     }
 
-    public Attendance updateAttendance(Long id, Attendance updatedData) {
+    public AttendanceResponseDTO updateAttendance(Long id, AttendanceRequestDTO updatedData) {
 
-        Attendance attendance = findAttendanceById(id);
+        Attendance attendance = findAttendanceEntityById(id);
+
         attendance.setAttendanceDate(updatedData.getAttendanceDate());
-        attendance.setStatus(updatedData.getStatus());
         attendance.setCheckInTime(updatedData.getCheckInTime());
         attendance.setCheckOutTime(updatedData.getCheckOutTime());
-        return attendanceRepository.save(attendance);
+
+        Attendance attendanceUpdated = attendanceRepository.save(attendance);
+
+        return attendanceMapper.toAttendanceResponseDTO(attendanceUpdated);
     }
 }
