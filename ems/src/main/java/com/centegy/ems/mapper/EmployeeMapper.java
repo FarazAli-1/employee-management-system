@@ -20,6 +20,7 @@ public class EmployeeMapper {
 
         EmployeeResponseDTO employeeResponseDTO = new EmployeeResponseDTO();
 
+        employeeResponseDTO.setId(employee.getId());
         employeeResponseDTO.setFirstName(employee.getFirstName());
         employeeResponseDTO.setLastName(employee.getLastName());
         employeeResponseDTO.setEmail(employee.getEmail());
@@ -30,7 +31,9 @@ public class EmployeeMapper {
             employeeResponseDTO.setManagerId(employee.getManager().getId());
         }
 
-        employeeResponseDTO.setRoleId(roleMapper.roleResponseDTO(employee.getRole()));
+        if (employee.getRole() != null) {
+            employeeResponseDTO.setRoleId(employee.getRole().getId());
+        }
 
         return employeeResponseDTO;
 

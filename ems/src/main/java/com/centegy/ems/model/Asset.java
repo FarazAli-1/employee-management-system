@@ -28,7 +28,6 @@ public class Asset {
     @Enumerated(EnumType.STRING)
     private AssetStatus status;
 
-    @NotNull
     @ManyToOne
     @JoinColumn(name = "employee_id")
     private Employee employee;

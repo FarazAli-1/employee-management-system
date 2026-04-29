@@ -41,7 +41,7 @@ public class DepartmentService {
 
         List<Department> departmentResponseDTOS =  departmentRepository.findAll();
 
-        return departmentResponseDTOS.stream().map(departmentMapper::toDepartmentResponseDTO).toList();
+        return departmentResponseDTOS.stream().map(departmentMapper::toDepartmentResponseDTO).collect(java.util.stream.Collectors.toList());
     }
 
     @Cacheable(value="department", key="#id")

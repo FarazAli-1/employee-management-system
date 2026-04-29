@@ -11,18 +11,13 @@ import lombok.Setter;
 public class EmployeeResponseDTO {
 
     private Long id;
-    @NotNull
     private String firstName;
-    @NotNull
     private String lastName;
-    @Email
     private String email;
     private String phone;
     private EmploymentType employmentType;
 
-    @NotNull
-    private RoleResponseDTO roleId;
-
+    private Long roleId;
     private Long managerId;
 
 }

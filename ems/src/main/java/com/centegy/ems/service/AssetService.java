@@ -79,8 +79,6 @@ public class AssetService {
 
     }
 
-
-
     public Asset getAssetEntityById(Long id) {
         return assetRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Asset not found with ID: " + id));
@@ -124,7 +122,7 @@ public class AssetService {
         Asset asset = getAssetEntityById(id);
 
 
-        if (asset.getEmployee().getId() == null || !asset.getEmployee().getId().equals(employeeId)) {
+        if (asset.getEmployee() == null || !asset.getEmployee().getId().equals(employeeId)) {
                 throw new RuntimeException("Unauthorized: You cannot return an asset that is not assigned to you.");
         }
 
@@ -145,6 +143,14 @@ public class AssetService {
 
     public AssetResponseDTO approveAsset(Long id, Long approverId) {
         Asset asset = getAssetEntityById(id);
+
+        if (asset.getEmployee() == null) {
+            throw new RuntimeException("Invalid Action: Cannot approve an asset that is not assigned to an employee.");
+        }
+        if (asset.getStatus() != AssetStatus.REQUESTED) {
+            throw new RuntimeException("Invalid Action: You can only approve assets that are currently REQUESTED.");
+        }
+
         validateRoleStatus(approverId);
 
         Employee realEmployee = employeeService.getEmployeeEntityByID(approverId);

@@ -1,6 +1,8 @@
 package com.centegy.ems.dto.response;
 
 import com.centegy.ems.model.enums.AttendanceStatus;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,7 +20,7 @@ public class AttendanceResponseDTO {
 
     private AttendanceStatus status;
 
-    private EmployeeResponseDTO employee;
+    private Long employeeId;
 
 
 }

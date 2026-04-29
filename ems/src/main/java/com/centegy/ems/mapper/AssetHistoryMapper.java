@@ -22,13 +22,19 @@ public class AssetHistoryMapper {
 
         AssetHistoryResponseDTO assetHistoryResponseDTO = new AssetHistoryResponseDTO();
 
-        assetHistoryResponseDTO.setEmployee(employeeMapper.toEmployeeResponseDTO(assetHistory.getEmployee()));
+        if (assetHistory.getEmployee()!=null){
+            assetHistoryResponseDTO.setEmployeeId(assetHistory.getEmployee().getId());
+        }
         assetHistoryResponseDTO.setApprovalDate(assetHistory.getApprovedDate());
         assetHistoryResponseDTO.setReturnDate(assetHistory.getReturnDate());
-        assetHistoryResponseDTO.setAsset(assetMapper.toAssetResponseDTO(assetHistory.getAsset()));
+
+        if (assetHistory.getAsset()!=null){
+            assetHistoryResponseDTO.setAssetId(assetHistory.getAsset().getId());
+        }
+
 
         if (assetHistory.getApprovedBy() != null){
-            assetHistoryResponseDTO.setApprover(employeeMapper.toEmployeeResponseDTO(assetHistory.getApprovedBy()));
+            assetHistoryResponseDTO.setApproverId(assetHistory.getApprovedBy().getId());
         }
 
         return assetHistoryResponseDTO;

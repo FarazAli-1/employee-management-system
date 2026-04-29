@@ -54,26 +54,7 @@ public class EmployeeService {
 
         Employee newEmployee = employeeRepository.save(employee);
 
-        // Annual Leave
-        LeaveBalance annual = new LeaveBalance();
-        annual.setEmployee(newEmployee);
-        annual.setLeaveType(LeaveType.ANNUAL);
-        annual.setRemainingDays(20);
-        leaveBalanceRepository.save(annual);
-
-        // Sick Leave
-        LeaveBalance sick = new LeaveBalance();
-        sick.setEmployee(newEmployee);
-        sick.setLeaveType(LeaveType.SICK);
-        sick.setRemainingDays(10);
-        leaveBalanceRepository.save(sick);
-
-        // Casual Leave
-        LeaveBalance casual = new LeaveBalance();
-        casual.setEmployee(newEmployee);
-        casual.setLeaveType(LeaveType.CASUAL);
-        casual.setRemainingDays(5);
-        leaveBalanceRepository.save(casual);
+        generateLeaves(newEmployee);
 
         return employeeMapper.toEmployeeResponseDTO(newEmployee);
 
@@ -160,27 +141,7 @@ public class EmployeeService {
 
         for (Employee employee : employees) {
             if (leaveBalanceRepository.findByEmployeeIdAndLeaveType(employee.getId(), LeaveType.ANNUAL).isEmpty()) {
-
-                LeaveBalance annual = new LeaveBalance();
-                annual.setEmployee(employee);
-                annual.setLeaveType(LeaveType.ANNUAL);
-                annual.setRemainingDays(20);
-                leaveBalanceRepository.save(annual);
-
-                // Sick Leave
-                LeaveBalance sick = new LeaveBalance();
-                sick.setEmployee(employee);
-                sick.setLeaveType(LeaveType.SICK);
-                sick.setRemainingDays(10);
-                leaveBalanceRepository.save(sick);
-
-                // Casual Leave
-                LeaveBalance casual = new LeaveBalance();
-                casual.setEmployee(employee);
-                casual.setLeaveType(LeaveType.CASUAL);
-                casual.setRemainingDays(5);
-                leaveBalanceRepository.save(casual);
-
+                generateLeaves(employee);
             }
         }
         return "All legacy employees have been fixed and given all 3 leave types";
@@ -213,6 +174,33 @@ public class EmployeeService {
         Employee newEmployee = employeeRepository.save(employee);
 
        return employeeMapper.toEmployeeResponseDTO(newEmployee);
+
+    }
+
+
+    private void generateLeaves(Employee employee){
+
+        // Annual Leave
+        createLeaveBalance(employee, LeaveType.ANNUAL, 20);
+
+        // Sick Leave
+        createLeaveBalance(employee, LeaveType.SICK, 10);
+
+        // Casual Leave
+        createLeaveBalance(employee, LeaveType.CASUAL, 5);
+
+
+    }
+
+    private void createLeaveBalance(Employee emp, LeaveType type, int days){
+
+        LeaveBalance leaveBalance = new LeaveBalance();
+
+        leaveBalance.setEmployee(emp);
+        leaveBalance.setLeaveType(type);
+        leaveBalance.setRemainingDays(days);
+
+        leaveBalanceRepository.save(leaveBalance);
 
     }
 

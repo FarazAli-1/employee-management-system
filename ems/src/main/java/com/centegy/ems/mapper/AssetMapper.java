@@ -23,7 +23,12 @@ public class AssetMapper {
         assetResponseDTO.setAssetId(asset.getId());
         assetResponseDTO.setAssetName(asset.getAssetName());
         assetResponseDTO.setAssetType(asset.getAssetType());
-        assetResponseDTO.setEmployee(employeeMapper.toEmployeeResponseDTO(asset.getEmployee()));
+
+        if(asset.getEmployee()!=null){
+            assetResponseDTO.setEmployeeId(asset.getEmployee().getId());
+        }
+
+        assetResponseDTO.setAssetStatus(asset.getStatus());
 
         if (asset.getApprovedBy() != null) {
             assetResponseDTO.setApproverId(asset.getApprovedBy().getId());

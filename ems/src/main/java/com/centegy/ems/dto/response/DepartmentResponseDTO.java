@@ -12,6 +12,6 @@ public class DepartmentResponseDTO implements Serializable {
 
     private Long id;
     private String name;
-    private Integer headOfDepartmentId;
+    private Long headOfDepartmentId;
 
 }

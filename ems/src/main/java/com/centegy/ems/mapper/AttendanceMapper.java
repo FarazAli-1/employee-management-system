@@ -25,7 +25,10 @@ public class AttendanceMapper {
         attendanceResponseDTO.setCheckInTime(attendance.getCheckInTime());
         attendanceResponseDTO.setCheckOutTime(attendance.getCheckOutTime());
         attendanceResponseDTO.setStatus(attendance.getStatus());
-        attendanceResponseDTO.setEmployee(employeeMapper.toEmployeeResponseDTO(attendance.getEmployee()));
+
+        if (attendance.getEmployee() != null) {
+            attendanceResponseDTO.setEmployeeId(attendance.getEmployee().getId());
+        }
 
         return attendanceResponseDTO;
     }

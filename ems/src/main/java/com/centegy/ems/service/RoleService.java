@@ -46,7 +46,7 @@ public class RoleService {
 
         List<Role> roles = roleRepository.findAll();
 
-        return roles.stream().map(roleMapper::roleResponseDTO).toList();
+        return roles.stream().map(roleMapper::roleResponseDTO).collect(java.util.stream.Collectors.toList());
     }
 
     @Cacheable(value="role", key="#id")

@@ -27,6 +27,7 @@ public class DepartmentMapper {
         Department department = new Department();
 
         department.setName(requestDTO.getName());
+
         department.setHeadOfDepartmentId(requestDTO.getHeadOfDepartmentId());
 
         return department;

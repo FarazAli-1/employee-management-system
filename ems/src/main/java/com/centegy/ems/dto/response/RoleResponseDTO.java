@@ -11,7 +11,7 @@ public class RoleResponseDTO {
 
     private Long id;
     private String title;
-    private DepartmentResponseDTO department;
+    private Long departmentId;
     private RoleRank roleRank;
 
 }

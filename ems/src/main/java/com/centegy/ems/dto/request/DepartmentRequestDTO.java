@@ -12,6 +12,6 @@ public class DepartmentRequestDTO {
     @NotBlank
     private  String name;
 
-    private  Integer headOfDepartmentId;
+    private  Long headOfDepartmentId;
 
 }

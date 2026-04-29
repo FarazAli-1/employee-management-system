@@ -53,12 +53,12 @@ public class AssetController {
     }
 
     @PutMapping("/{id}/return")
-    public AssetResponseDTO returnAsset(@PathVariable Long id, @Valid @RequestParam Long employeeId) {
+    public AssetResponseDTO returnAsset(@PathVariable Long id, @RequestParam Long employeeId) {
         return assetService.returnAsset(id, employeeId);
     }
 
     @PutMapping("/{id}/approve")
-    public AssetResponseDTO approveAsset(@PathVariable Long id, @Valid @RequestParam Long approverId) {
+    public AssetResponseDTO approveAsset(@PathVariable Long id, @RequestParam Long approverId) {
         return assetService.approveAsset(id, approverId);
     }
 

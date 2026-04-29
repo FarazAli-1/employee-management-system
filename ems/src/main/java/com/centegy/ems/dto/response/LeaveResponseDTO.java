@@ -15,20 +15,14 @@ public class LeaveResponseDTO {
 
     private Long id;
 
-    @NotNull
     private LeaveType leaveType;
 
-    @NotNull
     private LeaveStatus leaveStatus;
 
-    @NotNull
     private LocalDate startDate;
-    @NotNull
     private LocalDate endDate;
 
-    @NotNull
-    private EmployeeResponseDTO employee;
-
+    private Long employeeId;
     private Long approverId;
 
 

@@ -23,11 +23,15 @@ public class LeaveMapper {
 
         LeaveResponseDTO leaveResponseDTO = new LeaveResponseDTO();
 
+        leaveResponseDTO.setId(leave.getId());
         leaveResponseDTO.setLeaveType(leave.getLeaveType());
         leaveResponseDTO.setLeaveStatus(leave.getStatus());
         leaveResponseDTO.setStartDate(leave.getStartDate());
         leaveResponseDTO.setEndDate(leave.getEndDate());
-        leaveResponseDTO.setEmployee(employeeMapper.toEmployeeResponseDTO(leave.getEmployee()));
+
+        if (leave.getEmployee() != null) {
+            leaveResponseDTO.setEmployeeId(leave.getEmployee().getId());
+        }
 
         if (leave.getApprovedBy() != null) {
             leaveResponseDTO.setApproverId(leave.getApprovedBy().getId());

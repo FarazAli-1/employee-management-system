@@ -22,7 +22,7 @@ public class Department {
 
     @NotBlank(message = "Department name is required")
     private String name;
-    private Integer headOfDepartmentId;
+    private Long headOfDepartmentId;
 
     @JsonIgnore
     @OneToMany(mappedBy = "department")

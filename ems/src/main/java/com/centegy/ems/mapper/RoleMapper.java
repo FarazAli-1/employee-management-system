@@ -22,7 +22,11 @@ public class RoleMapper {
 
         roleDTO.setId(role.getId());
         roleDTO.setTitle(role.getTitle());
-        roleDTO.setDepartment(departmentMapper.toDepartmentResponseDTO(role.getDepartment()));
+
+        if (role.getDepartment() != null) {
+            roleDTO.setDepartmentId(role.getDepartment().getId());
+        }
+
         roleDTO.setRoleRank(role.getRoleLevel());
 
         return roleDTO;
