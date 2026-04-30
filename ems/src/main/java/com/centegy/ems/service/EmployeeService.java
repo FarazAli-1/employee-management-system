@@ -108,6 +108,9 @@ public class EmployeeService {
         if (!employeeRepository.existsById(id)) {
             throw new RuntimeException("Cannot delete. Employee not found with ID: " + id);
         }
+
+        employeeRepository.deleteById(id);
+
     }
 
     public EmployeeResponseDTO updateEmployee(Long id, EmployeeRequestDTO updatedData) {

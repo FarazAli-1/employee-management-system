@@ -7,11 +7,15 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
+@SQLDelete(sql = "UPDATE role SET is_active = false WHERE id=?")
+@SQLRestriction("is_active = true")
 public class Role {
 
     @Id
@@ -26,6 +30,8 @@ public class Role {
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
+
+    private boolean isActive = true;
 
     @Enumerated(EnumType.STRING)
     private RoleRank roleLevel;

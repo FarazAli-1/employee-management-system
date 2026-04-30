@@ -36,4 +36,9 @@ public class RoleController {
         return roleService.getRoleByID(id);
     }
 
+    @DeleteMapping("/{id}")
+    public void deleteRole(@PathVariable Long id) {
+        roleService.deleteRole(id);
+    }
+
 }

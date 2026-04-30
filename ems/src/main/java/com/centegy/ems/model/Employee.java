@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,8 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
+@SQLDelete(sql = "UPDATE employee SET is_active = false WHERE id=?")
+@SQLRestriction("is_active = true")
 public class Employee {
 
     @Id
@@ -40,8 +44,9 @@ public class Employee {
     private String contractURL;
     private String certificateURL;
 
-    @NotNull(message = "Every employee must be assigned to a Role ID")
+    private boolean isActive = true;
 
+    @NotNull(message = "Every employee must be assigned to a Role ID")
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;

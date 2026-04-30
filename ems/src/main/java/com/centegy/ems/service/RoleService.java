@@ -58,4 +58,12 @@ public class RoleService {
         return roleMapper.roleResponseDTO(role);
     }
 
+    @CacheEvict(value = "roles", allEntries = true)
+    public void deleteRole(Long id) {
+        if (!roleRepository.existsById(id)) {
+            throw new RuntimeException("Cannot delete. Role not found with ID: " + id);
+        }
+        roleRepository.deleteById(id);
+    }
+
 }
