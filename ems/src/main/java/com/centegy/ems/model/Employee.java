@@ -44,6 +44,8 @@ public class Employee {
     private String contractURL;
     private String certificateURL;
 
+    private String password;
+
     private boolean isActive = true;
 
     @NotNull(message = "Every employee must be assigned to a Role ID")

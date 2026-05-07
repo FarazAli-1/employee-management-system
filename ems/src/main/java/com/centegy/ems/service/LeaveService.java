@@ -82,7 +82,7 @@ public class LeaveService {
         response.setPageSize(leavePage.getSize());
         response.setTotalPages(leavePage.getTotalPages());
         response.setTotalElements(leavePage.getTotalElements());
-        response.setTotalPages(leavePage.getTotalPages());
+        response.setPageNo(pageNo);
         response.setLast(leavePage.isLast());
 
         return response;

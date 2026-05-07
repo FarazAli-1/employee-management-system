@@ -16,8 +16,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
-
-
     @NonNull
     @EntityGraph(attributePaths = {"role", "manager"})
     Optional<Employee> findById(@NonNull Long id);
@@ -29,5 +27,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @NonNull
     @EntityGraph(attributePaths = {"role", "manager"})
     List<Employee> findAll();
+
+    Optional<Employee> findByEmail(String email);
 
 }
