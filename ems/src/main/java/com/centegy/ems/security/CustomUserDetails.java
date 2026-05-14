@@ -12,6 +12,10 @@ public class CustomUserDetails implements UserDetails {
 
     private final Employee employee;
 
+    public Employee getEmployee() {
+        return employee;
+    }
+
     public CustomUserDetails(Employee employee) {
         this.employee = employee;
     }

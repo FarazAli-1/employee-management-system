@@ -21,6 +21,9 @@ public class EmployeeRequestDTO {
     private String phone;
 
     @NotNull
+    private String password;
+
+    @NotNull
     private EmploymentType employmentType;
 
     @NotNull

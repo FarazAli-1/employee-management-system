@@ -27,6 +27,7 @@ public class EmployeeMapper {
         employeeResponseDTO.setPhone(employee.getPhone());
         employeeResponseDTO.setEmploymentType(employee.getEmploymentType());
 
+
         if (employee.getManager() != null) {
             employeeResponseDTO.setManagerId(employee.getManager().getId());
         }
@@ -51,6 +52,7 @@ public class EmployeeMapper {
         employee.setEmail(employeeRequestDTO.getEmail());
         employee.setPhone(employeeRequestDTO.getPhone());
         employee.setEmploymentType(employeeRequestDTO.getEmploymentType());
+        employee.setPassword(employeeRequestDTO.getPassword());
 
         return employee;
     }

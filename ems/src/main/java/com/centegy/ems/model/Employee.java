@@ -44,6 +44,7 @@ public class Employee {
     private String contractURL;
     private String certificateURL;
 
+    @NotNull
     private String password;
 
     private boolean isActive = true;

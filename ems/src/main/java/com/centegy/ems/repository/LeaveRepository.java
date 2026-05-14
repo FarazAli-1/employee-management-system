@@ -18,9 +18,9 @@ public interface LeaveRepository extends JpaRepository<Leave, Long> {
     @EntityGraph(attributePaths = {"employee", "approvedBy"})
     List<Leave> findByEmployeeId(Long employeeId);
 
-    @NonNull
-    @EntityGraph(attributePaths = {"employee", "approvedBy"})
-    List<Leave> findAll();
+//    @NonNull
+//    @EntityGraph(attributePaths = {"employee", "approvedBy"})
+//    List<Leave> findAll();
 
     @NonNull
     @EntityGraph(attributePaths = {"employee", "approvedBy"})

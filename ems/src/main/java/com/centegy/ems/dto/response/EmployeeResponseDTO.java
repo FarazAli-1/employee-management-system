@@ -1,13 +1,18 @@
 package com.centegy.ems.dto.response;
 
+import com.centegy.ems.model.Employee;
 import com.centegy.ems.model.enums.EmploymentType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class EmployeeResponseDTO {
 
     private Long id;
@@ -17,7 +22,9 @@ public class EmployeeResponseDTO {
     private String phone;
     private EmploymentType employmentType;
 
+
     private Long roleId;
     private Long managerId;
+    
 
 }

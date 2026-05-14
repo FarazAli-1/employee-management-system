@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,12 +27,14 @@ public class EmployeeService {
     private final LeaveBalanceRepository leaveBalanceRepository;
     private final EmployeeMapper employeeMapper;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public EmployeeService(EmployeeRepository employeeRepository, LeaveBalanceRepository leaveBalanceRepository, EmployeeMapper employeeMapper, RoleRepository roleRepository) {
+    public EmployeeService(EmployeeRepository employeeRepository, LeaveBalanceRepository leaveBalanceRepository, EmployeeMapper employeeMapper, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.employeeRepository = employeeRepository;
         this.leaveBalanceRepository = leaveBalanceRepository;
         this.employeeMapper = employeeMapper;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -51,6 +54,8 @@ public class EmployeeService {
 
             employee.setManager(manager);
         }
+
+        employee.setPassword(passwordEncoder.encode(employeeRequestDTO.getPassword()));
 
         Employee newEmployee = employeeRepository.save(employee);
 
@@ -86,6 +91,32 @@ public class EmployeeService {
 
         return response;
     }
+
+
+//    public PageResponseDTO<EmployeeResponseDTO> getAllEmployees1(int pageNo, int pageSize, String sortBy, String sortDir) {
+//
+//        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+//
+//        Pageable pageRequest = PageRequest.of(pageNo, pageSize, sort);
+//
+//        Page<EmployeeResponseDTO> employeeResponseDTOS = employeeRepository.findAllAsDTOs(pageRequest);
+//
+//        PageResponseDTO<EmployeeResponseDTO> response = new PageResponseDTO<>();
+//
+//        response.setContent(employeeResponseDTOS.getContent());
+//        response.setPageNo(employeeResponseDTOS.getNumber());
+//        response.setPageSize(employeeResponseDTOS.getSize());
+//        response.setTotalElements(employeeResponseDTOS.getTotalElements());
+//        response.setTotalPages(employeeResponseDTOS.getTotalPages());
+//        response.setLast(employeeResponseDTOS.isLast());
+//
+//
+//        return response;
+//
+//
+//    }
+
+
 
 
     public Employee getEmployeeEntityByID(Long id){
