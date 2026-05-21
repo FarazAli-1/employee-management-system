@@ -3,6 +3,7 @@ package com.centegy.ems.service;
 import com.centegy.ems.dto.request.EmployeeRequestDTO;
 import com.centegy.ems.dto.response.EmployeeResponseDTO;
 import com.centegy.ems.dto.response.PageResponseDTO;
+import com.centegy.ems.exceptions.ResourceNotFoundException;
 import com.centegy.ems.mapper.EmployeeMapper;
 import com.centegy.ems.model.Employee;
 import com.centegy.ems.model.LeaveBalance;
@@ -11,6 +12,7 @@ import com.centegy.ems.model.enums.LeaveType;
 import com.centegy.ems.repository.EmployeeRepository;
 import com.centegy.ems.repository.LeaveBalanceRepository;
 import com.centegy.ems.repository.RoleRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,20 +39,19 @@ public class EmployeeService {
         this.passwordEncoder = passwordEncoder;
     }
 
-
-
+    @Transactional
     public EmployeeResponseDTO addEmployee(EmployeeRequestDTO employeeRequestDTO) {
 
         Employee employee = employeeMapper.toEntity(employeeRequestDTO);
 
         Role role = roleRepository.findById(employeeRequestDTO.getRoleId())
-                .orElseThrow(() -> new RuntimeException("Role not found with ID: " + employeeRequestDTO.getRoleId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + employeeRequestDTO.getRoleId()));
 
         employee.setRole(role);
 
         if (employeeRequestDTO.getManagerId() != null) {
             Employee manager = employeeRepository.findById(employeeRequestDTO.getManagerId())
-                    .orElseThrow(() -> new RuntimeException("Manager not found with ID: " + employeeRequestDTO.getManagerId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Manager not found with ID: " + employeeRequestDTO.getManagerId()));
 
             employee.setManager(manager);
         }
@@ -111,20 +112,17 @@ public class EmployeeService {
 //
 //    }
 
-
-
-
     public Employee getEmployeeEntityByID(Long id){
 
         return employeeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Employee not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with ID: " + id));
 
     }
 
     public EmployeeResponseDTO getEmployeeByID(Long id) {
 
         Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Employee not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with ID: " + id));
 
         return employeeMapper.toEmployeeResponseDTO(employee);
     }
@@ -132,7 +130,7 @@ public class EmployeeService {
     public void deleteEmployee(Long id) {
 
         if (!employeeRepository.existsById(id)) {
-            throw new RuntimeException("Cannot delete. Employee not found with ID: " + id);
+            throw new ResourceNotFoundException("Cannot delete. Employee not found with ID: " + id);
         }
 
         employeeRepository.deleteById(id);
@@ -144,13 +142,13 @@ public class EmployeeService {
         Employee employee = getEmployeeEntityByID(id);
 
         Role role = roleRepository.findById(updatedData.getRoleId())
-                .orElseThrow(() -> new RuntimeException("Role not found with ID: " + updatedData.getRoleId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + updatedData.getRoleId()));
 
         employee.setRole(role);
 
         if (updatedData.getManagerId() != null) {
             Employee manager = employeeRepository.findById(updatedData.getManagerId())
-                    .orElseThrow(() -> new RuntimeException("Manager not found with ID: " + updatedData.getManagerId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Manager not found with ID: " + updatedData.getManagerId()));
 
             employee.setManager(manager);
         }else {
@@ -165,6 +163,7 @@ public class EmployeeService {
         return employeeMapper.toEmployeeResponseDTO(employeeRepository.save(employee));
     }
 
+    @Transactional
     public String fixLegacyLeaveBalances() {
         List<Employee> employees = getAllEmployeesEntities();
 

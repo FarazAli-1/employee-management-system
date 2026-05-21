@@ -1,4 +1,4 @@
-package com.centegy.ems.advices;
+package com.centegy.ems.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,4 +34,30 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(ResourceNotFoundException ex) {
+
+        Map<String, Object> errorResponse = new HashMap<>();
+
+        errorResponse.put("timestamp", LocalDateTime.now());
+        errorResponse.put("status", HttpStatus.NOT_FOUND.value());
+        errorResponse.put("error", ex.getMessage());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+
+    }
+
+    @ExceptionHandler(UnauthorizedActionException.class)
+    public ResponseEntity<Map<String, Object>> handleUnauthorizedActionException(UnauthorizedActionException ex) {
+
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("timestamp", LocalDateTime.now());
+        errorResponse.put("status", HttpStatus.FORBIDDEN.value());
+        errorResponse.put("error", ex.getMessage());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
+
+
 }

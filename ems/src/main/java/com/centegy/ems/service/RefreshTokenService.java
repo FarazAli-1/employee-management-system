@@ -1,14 +1,12 @@
 package com.centegy.ems.service;
 
+import com.centegy.ems.exceptions.ResourceNotFoundException;
 import com.centegy.ems.model.Employee;
 import com.centegy.ems.model.RefreshToken;
-import com.centegy.ems.repository.EmployeeRepository;
 import com.centegy.ems.repository.RefreshTokenRepository;
 import org.springframework.stereotype.Service;
 
-import java.sql.Ref;
 import java.time.Instant;
-import java.util.Date;
 
 @Service
 public class RefreshTokenService {
@@ -39,7 +37,7 @@ public class RefreshTokenService {
     public RefreshToken findByToken(String token) {
 
         return refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Cannot find refresh token with token: " + token));
+                .orElseThrow(() -> new ResourceNotFoundException("Cannot find refresh token with token: " + token));
 
     }
 

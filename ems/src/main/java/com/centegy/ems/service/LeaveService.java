@@ -4,6 +4,8 @@ package com.centegy.ems.service;
 import com.centegy.ems.dto.request.LeaveRequestDTO;
 import com.centegy.ems.dto.response.LeaveResponseDTO;
 import com.centegy.ems.dto.response.PageResponseDTO;
+import com.centegy.ems.exceptions.ResourceNotFoundException;
+import com.centegy.ems.exceptions.UnauthorizedActionException;
 import com.centegy.ems.mapper.LeaveMapper;
 import com.centegy.ems.model.Employee;
 import com.centegy.ems.model.Leave;
@@ -12,10 +14,9 @@ import com.centegy.ems.model.enums.LeaveStatus;
 import com.centegy.ems.repository.LeaveBalanceRepository;
 import com.centegy.ems.repository.LeaveRepository;
 import com.centegy.ems.security.SecurityUtils;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -38,6 +39,7 @@ public class LeaveService {
     }
 
 
+    @Transactional
     public LeaveResponseDTO applyForLeave(LeaveRequestDTO leaveRequestDTO) {
 
         Leave leave = leaveMapper.toEntity(leaveRequestDTO);
@@ -52,7 +54,7 @@ public class LeaveService {
         long daysRequested = calculateDays(leaveRequestDTO.getStartDate(),leaveRequestDTO.getEndDate());
 
         LeaveBalance balance = leaveBalanceRepository.findByEmployeeIdAndLeaveType(employee.getId(), leaveRequestDTO.getLeaveType())
-                .orElseThrow(() -> new RuntimeException("Leave Balance not found for this employee!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Leave Balance not found for this employee!"));
 
 
 
@@ -91,14 +93,14 @@ public class LeaveService {
     public Leave getLeaveEntityByID(Long id) {
 
         return leaveRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Leave record not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Leave record not found with ID: " + id));
 
     }
 
     public LeaveResponseDTO getLeaveById(Long id) {
 
         Leave leave = leaveRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Leave record not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Leave record not found with ID: " + id));
 
         return leaveMapper.toLeaveResponseDTO(leave);
     }
@@ -119,15 +121,19 @@ public class LeaveService {
 
         Leave leave = getLeaveEntityByID(id);
 
-        if (leave.getEmployee().getId().equals(SecurityUtils.getCurrentUserId()) && leave.getStatus().equals(LeaveStatus.PENDING)) {
-            leaveRepository.deleteById(id);
+        if (!leave.getEmployee().getId().equals(SecurityUtils.getCurrentUserId())) {
+            throw new UnauthorizedActionException("You can only delete your own leave requests");
         }
 
-        if (!leaveRepository.existsById(id)) {
-            throw new RuntimeException("Cannot delete. Leave record not found with ID: " + id);
+        if (!leave.getStatus().equals(LeaveStatus.PENDING)){
+            throw new UnauthorizedActionException("You cannot delete a leave that has already been approved or rejected");
         }
+
+        leaveRepository.delete(leave);
+
     }
 
+    @Transactional
     public LeaveResponseDTO approveLeave(Long id) {
         Leave leave = getLeaveEntityByID(id);
 
@@ -135,15 +141,16 @@ public class LeaveService {
         leave.setEmployee(requester);
 
         if (requester.getManager() == null || !requester.getManager().getId().equals(SecurityUtils.getCurrentUserId())) {
-            throw new RuntimeException("Unauthorized: Only the employee's assigned manager can approve this leave.");
+            throw new UnauthorizedActionException("Unauthorized: Only the employee's assigned manager can approve this leave.");
         }
 
         long daysRequested = calculateDays(leave.getStartDate(), leave.getEndDate());
         LeaveBalance balance = leaveBalanceRepository.findByEmployeeIdAndLeaveType(requester.getId(),  leave.getLeaveType())
-                .orElseThrow(() -> new RuntimeException("Leave Balance not found!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Leave Balance not found!"));
 
         balance.setRemainingDays(balance.getRemainingDays()- (int) daysRequested);
 
+        leaveBalanceRepository.save(balance);
 
         leave.setStatus(LeaveStatus.APPROVED);
         leave.setApprovedBy(requester.getManager());

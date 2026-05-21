@@ -60,6 +60,7 @@ public class AttendanceController {
         return attendanceService.checkOut(id, checkOutTime);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteAttendance(@PathVariable Long id) {
         attendanceService.deleteAttendanceById(id);

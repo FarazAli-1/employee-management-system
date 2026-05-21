@@ -3,6 +3,8 @@ package com.centegy.ems.service;
 import com.centegy.ems.dto.request.AttendanceRequestDTO;
 import com.centegy.ems.dto.response.AttendanceResponseDTO;
 import com.centegy.ems.dto.response.PageResponseDTO;
+import com.centegy.ems.exceptions.ResourceNotFoundException;
+import com.centegy.ems.exceptions.UnauthorizedActionException;
 import com.centegy.ems.mapper.AttendanceMapper;
 import com.centegy.ems.model.Attendance;
 import com.centegy.ems.model.Employee;
@@ -62,10 +64,10 @@ public class AttendanceService {
     public AttendanceResponseDTO checkOut(Long attendanceId, LocalTime checkOutTime) {
 
         Attendance attendance =  attendanceRepository.findById(attendanceId)
-                .orElseThrow(() -> new RuntimeException("Attendance record not found!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Attendance record not found!"));
 
         if (!attendance.getEmployee().getId().equals(SecurityUtils.getCurrentUserId())) {
-            throw new RuntimeException("You can only checkout your own attendance");
+            throw new UnauthorizedActionException("You can only checkout your own attendance");
         }
 
         LocalTime endOfDay = LocalTime.of(17, 30);
@@ -87,13 +89,13 @@ public class AttendanceService {
 
     public Attendance findAttendanceEntityById(Long id) {
 
-       return attendanceRepository.findById(id).orElseThrow(() -> new RuntimeException("Attendance not found with ID: " + id));
+       return attendanceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Attendance not found with ID: " + id));
 
     }
 
     public AttendanceResponseDTO findAttendanceById(Long id) {
 
-        Attendance attendance = attendanceRepository.findById(id).orElseThrow(() -> new RuntimeException("Attendance not found with ID: " + id));
+        Attendance attendance = attendanceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Attendance not found with ID: " + id));
 
         return  attendanceMapper.toAttendanceResponseDTO(attendance);
     }
@@ -122,8 +124,11 @@ public class AttendanceService {
     public void deleteAttendanceById(Long id) {
 
         if (!attendanceRepository.existsById(id)) {
-            throw new RuntimeException("Cannot delete. Attendance not found with ID: " + id);
+            throw new ResourceNotFoundException("Cannot delete. Attendance not found with ID: " + id);
         }
+
+        attendanceRepository.deleteById(id);
+
     }
 
     public AttendanceResponseDTO updateAttendance(Long id, AttendanceRequestDTO updatedData) {

@@ -4,6 +4,8 @@ import com.centegy.ems.dto.request.AssetRequestDTO;
 import com.centegy.ems.dto.response.AssetHistoryResponseDTO;
 import com.centegy.ems.dto.response.AssetResponseDTO;
 import com.centegy.ems.dto.response.PageResponseDTO;
+import com.centegy.ems.exceptions.ResourceNotFoundException;
+import com.centegy.ems.exceptions.UnauthorizedActionException;
 import com.centegy.ems.mapper.AssetHistoryMapper;
 import com.centegy.ems.mapper.AssetMapper;
 import com.centegy.ems.model.Asset;
@@ -14,6 +16,7 @@ import com.centegy.ems.model.enums.AssetStatus;
 import com.centegy.ems.repository.AssetHistoryRepository;
 import com.centegy.ems.repository.AssetRepository;
 import com.centegy.ems.security.SecurityUtils;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -79,13 +82,13 @@ public class AssetService {
 
     public Asset getAssetEntityById(Long id) {
         return assetRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Asset not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Asset not found with ID: " + id));
     }
 
     public AssetResponseDTO getAssetById(Long id) {
 
         Asset asset = assetRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Asset not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Asset not found with ID: " + id));
 
         return assetMapper.toAssetResponseDTO(asset);
     }
@@ -108,18 +111,21 @@ public class AssetService {
         if (!assetRepository.existsById(id)) {
             throw new RuntimeException("Cannot delete. Asset not found with ID: " + id);
         }
+
+        assetRepository.deleteById(id);
+
     }
 
+    @Transactional
     public AssetResponseDTO returnAsset(Long id) {
 
         Asset asset = getAssetEntityById(id);
 
-
         if (asset.getEmployee() == null || !asset.getEmployee().getId().equals(SecurityUtils.getCurrentUserId())) {
-                throw new RuntimeException("Unauthorized: You cannot return an asset that is not assigned to you.");
+                throw new UnauthorizedActionException("Unauthorized: You cannot return an asset that is not assigned to you.");
         }
 
-        AssetHistory  assetHistory = assetHistoryRepository.findByAssetIdAndReturnDateIsNull(id)
+        AssetHistory assetHistory = assetHistoryRepository.findByAssetIdAndReturnDateIsNull(id)
                 .orElse(null);
 
         if (assetHistory != null) {
@@ -134,14 +140,15 @@ public class AssetService {
     }
 
 
+    @Transactional
     public AssetResponseDTO approveAsset(Long id) {
         Asset asset = getAssetEntityById(id);
 
         if (asset.getEmployee() == null) {
-            throw new RuntimeException("Invalid Action: Cannot approve an asset that is not assigned to an employee.");
+            throw new UnauthorizedActionException("Invalid Action: Cannot approve an asset that is not assigned to an employee.");
         }
         if (asset.getStatus() != AssetStatus.REQUESTED) {
-            throw new RuntimeException("Invalid Action: You can only approve assets that are currently REQUESTED.");
+            throw new UnauthorizedActionException("Invalid Action: You can only approve assets that are currently REQUESTED.");
         }
 
         validateRoleStatus(SecurityUtils.getCurrentUserId());
@@ -159,14 +166,12 @@ public class AssetService {
         assetHistory.setApprovedDate(LocalDate.now());
         assetHistoryRepository.save(assetHistory);
 
-
         return assetMapper.toAssetResponseDTO(assetRepository.save(asset));
     }
 
     public List<AssetHistoryResponseDTO> getAssetHistory(Long assetId) {
 
         List<AssetHistory> assetHistory = assetHistoryRepository.findByAssetId(assetId);
-
 
         return assetHistory.stream().map(assetHistoryMapper::toAssetHistoryResponseDTO).toList();
     }
@@ -176,7 +181,7 @@ public class AssetService {
         Role role = employee.getRole();
 
        if (role.getRoleLevel().getLevel() > 2){
-           throw new RuntimeException("Access Denied: You do not have the required rank to perform this action.");
+           throw new UnauthorizedActionException("Access Denied: You do not have the required rank to perform this action.");
        }
 
     }

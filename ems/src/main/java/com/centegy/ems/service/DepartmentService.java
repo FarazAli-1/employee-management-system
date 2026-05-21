@@ -2,6 +2,7 @@ package com.centegy.ems.service;
 
 import com.centegy.ems.dto.request.DepartmentRequestDTO;
 import com.centegy.ems.dto.response.DepartmentResponseDTO;
+import com.centegy.ems.exceptions.ResourceNotFoundException;
 import com.centegy.ems.mapper.DepartmentMapper;
 import com.centegy.ems.model.Department;
 import com.centegy.ems.repository.DepartmentRepository;
@@ -23,7 +24,7 @@ public class DepartmentService {
         this.departmentMapper = departmentMapper;
     }
 
-    @CacheEvict(value = "departments",   allEntries = true)
+    @CacheEvict(value = "departments", allEntries = true)
     public DepartmentResponseDTO createDepartment(DepartmentRequestDTO departmentRequestDTO) {
 
         Department department =  departmentMapper.toEntity(departmentRequestDTO);
@@ -37,8 +38,6 @@ public class DepartmentService {
     @Cacheable(value = "departments")
     public List<DepartmentResponseDTO> getAllDepartments() {
 
-        System.out.println("🚶‍♂️ Librarian is walking to the Database Vault to get Departments...");
-
         List<Department> departmentResponseDTOS =  departmentRepository.findAll();
 
         return departmentResponseDTOS.stream().map(departmentMapper::toDepartmentResponseDTO).collect(java.util.stream.Collectors.toList());
@@ -47,7 +46,7 @@ public class DepartmentService {
     @Cacheable(value="department", key="#id")
     public DepartmentResponseDTO getDepartmentById(Long id) {
         Department department = departmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Department not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found with ID: " + id));
 
         return departmentMapper.toDepartmentResponseDTO(department);
     }
@@ -56,7 +55,7 @@ public class DepartmentService {
     public void deleteDepartment(Long id) {
 
         if (!departmentRepository.existsById(id)) {
-            throw new RuntimeException("Cannot delete. Department not found with ID: " + id);
+            throw new ResourceNotFoundException("Cannot delete. Department not found with ID: " + id);
         }
 
         departmentRepository.deleteById(id);

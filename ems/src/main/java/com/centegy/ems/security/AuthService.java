@@ -13,6 +13,7 @@ import com.centegy.ems.repository.EmployeeRepository;
 import com.centegy.ems.repository.RefreshTokenRepository;
 import com.centegy.ems.repository.RoleRepository;
 import com.centegy.ems.service.RefreshTokenService;
+import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -41,6 +42,7 @@ public class AuthService {
     }
 
 
+    @Transactional
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
 
         Authentication authentication = authenticationManager.authenticate(
@@ -61,6 +63,7 @@ public class AuthService {
 
     }
 
+    @Transactional
     public LoginResponseDTO refreshToken(RefreshTokenRequestDTO refreshTokenRequestDTO) {
 
         RefreshToken dbToken = refreshTokenService.findByToken(refreshTokenRequestDTO.getRefreshToken());
@@ -78,6 +81,7 @@ public class AuthService {
 
     }
 
+    @Transactional
     public SignUpResponseDTO signUp(SignUpRequestDTO signUpRequestDTO) {
 
         Employee employee = new Employee();
