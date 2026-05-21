@@ -70,15 +70,13 @@ public class EmployeeService {
         return employeeRepository.findAll();
     }
 
-    public PageResponseDTO<EmployeeResponseDTO> getAllEmployees(int pageNo, int pageSize, String sortBy, String sortDir) {
+    public PageResponseDTO<EmployeeResponseDTO> getAllEmployees(Pageable pageable) {
 
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-
-        Pageable pageRequest = PageRequest.of(pageNo, pageSize, sort);
-
-        Page<Employee> employeePage = employeeRepository.findAll(pageRequest);
-        List<Employee> listOfEmployees = employeePage.getContent();
-        List<EmployeeResponseDTO> content = listOfEmployees.stream().map(employeeMapper::toEmployeeResponseDTO).toList();
+        Page<Employee> employeePage = employeeRepository.findAll(pageable);
+        List<EmployeeResponseDTO> content = employeePage.getContent()
+                .stream()
+                .map(employeeMapper::toEmployeeResponseDTO)
+                .toList();
 
         PageResponseDTO<EmployeeResponseDTO> response = new PageResponseDTO<>();
         response.setContent(content);
@@ -92,14 +90,11 @@ public class EmployeeService {
         return response;
     }
 
-
-//    public PageResponseDTO<EmployeeResponseDTO> getAllEmployees1(int pageNo, int pageSize, String sortBy, String sortDir) {
 //
-//        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+//    public PageResponseDTO<EmployeeResponseDTO> getAllEmployees1(Pageable pageable) {
 //
-//        Pageable pageRequest = PageRequest.of(pageNo, pageSize, sort);
 //
-//        Page<EmployeeResponseDTO> employeeResponseDTOS = employeeRepository.findAllAsDTOs(pageRequest);
+//        Page<EmployeeResponseDTO> employeeResponseDTOS = employeeRepository.findAllAsDTOs(pageable);
 //
 //        PageResponseDTO<EmployeeResponseDTO> response = new PageResponseDTO<>();
 //

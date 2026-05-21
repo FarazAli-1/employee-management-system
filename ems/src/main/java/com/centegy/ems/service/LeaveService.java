@@ -11,8 +11,10 @@ import com.centegy.ems.model.LeaveBalance;
 import com.centegy.ems.model.enums.LeaveStatus;
 import com.centegy.ems.repository.LeaveBalanceRepository;
 import com.centegy.ems.repository.LeaveRepository;
+import com.centegy.ems.security.SecurityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +30,7 @@ public class LeaveService {
     private final LeaveBalanceRepository leaveBalanceRepository;
     private final LeaveMapper leaveMapper;
 
-
-    public LeaveService(LeaveRepository leaveRepository, EmployeeService employeeService, LeaveBalanceRepository leaveBalanceRepository, LeaveMapper leaveMapper) {
+    public LeaveService(LeaveRepository leaveRepository, EmployeeService employeeService, LeaveBalanceRepository leaveBalanceRepository, LeaveMapper leaveMapper, SecurityUtils securityUtils) {
         this.leaveRepository = leaveRepository;
         this.employeeService = employeeService;
         this.leaveBalanceRepository = leaveBalanceRepository;
@@ -41,7 +42,7 @@ public class LeaveService {
 
         Leave leave = leaveMapper.toEntity(leaveRequestDTO);
 
-        Employee employee = employeeService.getEmployeeEntityByID(leaveRequestDTO.getEmployeeId());
+        Employee employee = employeeService.getEmployeeEntityByID(SecurityUtils.getCurrentUserId());
         leave.setEmployee(employee);
 
         if (leaveRequestDTO.getEndDate().isBefore(leaveRequestDTO.getStartDate())) {
@@ -50,7 +51,7 @@ public class LeaveService {
 
         long daysRequested = calculateDays(leaveRequestDTO.getStartDate(),leaveRequestDTO.getEndDate());
 
-        LeaveBalance balance = leaveBalanceRepository.findByEmployeeIdAndLeaveType(leaveRequestDTO.getEmployeeId(), leaveRequestDTO.getLeaveType())
+        LeaveBalance balance = leaveBalanceRepository.findByEmployeeIdAndLeaveType(employee.getId(), leaveRequestDTO.getLeaveType())
                 .orElseThrow(() -> new RuntimeException("Leave Balance not found for this employee!"));
 
 
@@ -66,15 +67,13 @@ public class LeaveService {
 
     }
 
-    public PageResponseDTO<LeaveResponseDTO> getAllLeaves(int pageNo, int pageSize, String sortBy, String sortDir) {
+    public PageResponseDTO<LeaveResponseDTO> getAllLeaves(Pageable pageable) {
 
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-
-        PageRequest pageRequest = PageRequest.of(pageNo, pageSize, sort);
-
-        Page<Leave> leavePage = leaveRepository.findAll(pageRequest);
-        List<Leave> leaveList = leavePage.getContent();
-        List<LeaveResponseDTO>  content = leaveList.stream().map(leaveMapper::toLeaveResponseDTO).toList();
+        Page<Leave> leavePage = leaveRepository.findAll(pageable);
+        List<LeaveResponseDTO>  content = leavePage.getContent()
+                .stream()
+                .map(leaveMapper::toLeaveResponseDTO)
+                .toList();
 
         PageResponseDTO<LeaveResponseDTO> response = new PageResponseDTO<>();
 
@@ -82,13 +81,12 @@ public class LeaveService {
         response.setPageSize(leavePage.getSize());
         response.setTotalPages(leavePage.getTotalPages());
         response.setTotalElements(leavePage.getTotalElements());
-        response.setPageNo(pageNo);
+        response.setPageNo(leavePage.getNumber());
         response.setLast(leavePage.isLast());
 
         return response;
 
     }
-
 
     public Leave getLeaveEntityByID(Long id) {
 
@@ -119,18 +117,24 @@ public class LeaveService {
 
     public void deleteLeave(Long id) {
 
+        Leave leave = getLeaveEntityByID(id);
+
+        if (leave.getEmployee().getId().equals(SecurityUtils.getCurrentUserId()) && leave.getStatus().equals(LeaveStatus.PENDING)) {
+            leaveRepository.deleteById(id);
+        }
+
         if (!leaveRepository.existsById(id)) {
             throw new RuntimeException("Cannot delete. Leave record not found with ID: " + id);
         }
     }
 
-    public LeaveResponseDTO approveLeave(Long id, Long managerId) {
+    public LeaveResponseDTO approveLeave(Long id) {
         Leave leave = getLeaveEntityByID(id);
 
         Employee requester = employeeService.getEmployeeEntityByID(leave.getEmployee().getId());
         leave.setEmployee(requester);
 
-        if (requester.getManager() == null || !requester.getManager().getId().equals(managerId)) {
+        if (requester.getManager() == null || !requester.getManager().getId().equals(SecurityUtils.getCurrentUserId())) {
             throw new RuntimeException("Unauthorized: Only the employee's assigned manager can approve this leave.");
         }
 
@@ -147,15 +151,15 @@ public class LeaveService {
         return leaveMapper.toLeaveResponseDTO(leaveRepository.save(leave));
     }
 
-    public List<LeaveResponseDTO> getAllLeavesByEmployeeId(Long employeeId) {
+    public List<LeaveResponseDTO> getAllLeavesByEmployeeId() {
 
-        return leaveRepository.findByEmployeeId(employeeId).stream().map(leaveMapper::toLeaveResponseDTO).toList();
+        return leaveRepository.findByEmployeeId(SecurityUtils.getCurrentUserId()).stream().map(leaveMapper::toLeaveResponseDTO).toList();
 
     }
 
-    public List<LeaveResponseDTO> leaveCalender(Long requesterId) {
+    public List<LeaveResponseDTO> leaveCalender() {
 
-        Employee requester = employeeService.getEmployeeEntityByID(requesterId);
+        Employee requester = employeeService.getEmployeeEntityByID(SecurityUtils.getCurrentUserId());
         Long teamBossId;
 
         if (requester.getManager() != null) {

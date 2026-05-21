@@ -16,10 +16,4 @@ public class AssetRequestDTO {
     @NotBlank
     private String assetType;
 
-    @NotNull
-    private Long employeeId;
-
-
-
-
 }

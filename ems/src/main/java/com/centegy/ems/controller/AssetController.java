@@ -8,6 +8,10 @@ import com.centegy.ems.model.Asset;
 import com.centegy.ems.model.AssetHistory;
 import com.centegy.ems.service.AssetService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,19 +26,23 @@ public class AssetController {
         this.assetService = assetService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public AssetResponseDTO createAsset(@Valid @RequestBody AssetRequestDTO assetRequestDTO) {
         return assetService.createAsset(assetRequestDTO);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping
     public PageResponseDTO<AssetResponseDTO> getAllAssets(
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
-            @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
-            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir
-    ){
-        return assetService.getAllAssets(pageNo, pageSize, sortBy, sortDir);
+            @PageableDefault(
+                    page = 0,
+                    size = 10,
+                    sort = "id",
+                    direction = Sort.Direction.ASC
+            ) Pageable pageable
+    ) {
+        return assetService.getAllAssets(pageable);
     }
 
     @GetMapping("/{id}")
@@ -48,22 +56,24 @@ public class AssetController {
     }
 
     @PutMapping("/{id}")
-    public AssetResponseDTO updateAsset(@PathVariable Long id, @Valid @RequestBody AssetRequestDTO assetRequestDTO, @RequestParam Long performerID) {
-        return assetService.updateAsset(id, assetRequestDTO,  performerID);
+    public AssetResponseDTO updateAsset(@PathVariable Long id, @Valid @RequestBody AssetRequestDTO assetRequestDTO) {
+        return assetService.updateAsset(id, assetRequestDTO);
     }
 
     @PutMapping("/{id}/return")
-    public AssetResponseDTO returnAsset(@PathVariable Long id, @RequestParam Long employeeId) {
-        return assetService.returnAsset(id, employeeId);
+    public AssetResponseDTO returnAsset(@PathVariable Long id) {
+        return assetService.returnAsset(id);
     }
 
     @PutMapping("/{id}/approve")
-    public AssetResponseDTO approveAsset(@PathVariable Long id, @RequestParam Long approverId) {
-        return assetService.approveAsset(id, approverId);
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public AssetResponseDTO approveAsset(@PathVariable Long id) {
+        return assetService.approveAsset(id);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public void deleteAsset(@PathVariable Long id, @RequestParam Long performerId) {
-        assetService.deleteAsset(id, performerId);
+    public void deleteAsset(@PathVariable Long id) {
+        assetService.deleteAsset(id);
     }
 }

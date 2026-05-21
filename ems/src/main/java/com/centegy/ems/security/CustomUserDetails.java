@@ -1,12 +1,15 @@
 package com.centegy.ems.security;
 
 import com.centegy.ems.model.Employee;
+import com.centegy.ems.model.enums.RoleRank;
+import jakarta.persistence.*;
 import lombok.NonNull;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class CustomUserDetails implements UserDetails {
 
@@ -23,7 +26,11 @@ public class CustomUserDetails implements UserDetails {
     @Override
     @NonNull
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
+
+        String roleName = employee.getRole().getRoleLevel().name();
+
+        return List.of(new SimpleGrantedAuthority("ROLE_" + roleName));
+
     }
 
     @Override

@@ -23,17 +23,29 @@ public class JwtService {
     }
 
 
-    public String generateToken(Employee employee){
+    public String generateAccessToken(Employee employee){
 
         return Jwts.builder()
                 .subject(employee.getEmail())
                 .claim("id", employee.getId())
                 .claim("role", employee.getRole().getTitle())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000*60))
+                .expiration(new Date(System.currentTimeMillis() + 1000*60*60))
                 .signWith(getSecretKey())
                 .compact();
 
+    }
+
+    public String generateRefreshToken(Employee employee){
+
+        return Jwts.builder()
+                .subject(employee.getEmail())
+                .claim("id", employee.getId())
+                .claim("role", employee.getRole().getTitle())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + 1000*60*60*30))
+                .signWith(getSecretKey())
+                .compact();
     }
 
     public String getUsername(String token){

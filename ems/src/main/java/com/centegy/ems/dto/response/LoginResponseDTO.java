@@ -12,7 +12,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LoginResponseDTO {
 
-    String jwt;
+    String accessToken;
+    String refreshToken;
     Long id;
 
 }

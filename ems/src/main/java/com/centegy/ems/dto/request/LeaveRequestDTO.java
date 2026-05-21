@@ -20,7 +20,4 @@ public class LeaveRequestDTO {
     @NotNull
     private LocalDate endDate;
 
-    @NotNull
-    private Long employeeId;
-
 }

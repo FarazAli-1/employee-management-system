@@ -7,6 +7,10 @@ import com.centegy.ems.dto.response.PageResponseDTO;
 import com.centegy.ems.model.Employee;
 import com.centegy.ems.service.EmployeeService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,21 +26,27 @@ public class EmployeeController {
 
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public EmployeeResponseDTO createEmployee(@Valid @RequestBody EmployeeRequestDTO employeeRequestDTO) {
         return employeeService.addEmployee(employeeRequestDTO);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public PageResponseDTO<EmployeeResponseDTO> getAllEmployees(
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
-            @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
-            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir
+           @PageableDefault(
+                   page = 0,
+                   size = 10,
+                   sort = "id",
+                   direction = Sort.Direction.ASC
+           )
+           Pageable pageable
     ) {
-        return employeeService.getAllEmployees(pageNo, pageSize, sortBy, sortDir);
+        return employeeService.getAllEmployees(pageable);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/fix-balances")
     public String fixOldEmployeesLeaveBalances(){
         return employeeService.fixLegacyLeaveBalances();
@@ -48,6 +58,7 @@ public class EmployeeController {
         return employeeService.getEmployeeByID(id);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public EmployeeResponseDTO updateEmployee(@PathVariable Long id, @Valid @RequestBody EmployeeRequestDTO employeeRequestDTO) {
         return employeeService.updateEmployee(id, employeeRequestDTO);
@@ -59,6 +70,7 @@ public class EmployeeController {
         return employeeService.addDocument(id, documentType, documentUrl);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteEmployee(@PathVariable Long id) {
         employeeService.deleteEmployee(id);

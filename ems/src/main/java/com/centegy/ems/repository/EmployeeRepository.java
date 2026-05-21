@@ -25,7 +25,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @NonNull
     @EntityGraph(attributePaths = {"role", "manager"})
     Page<Employee> findAll(@NonNull Pageable pageable);
-
+//
 //    @NonNull
 //    @Query(value = "SELECT new com.centegy.ems.dto.response.EmployeeResponseDTO" +
 //            "(e.id, e.firstName,e.lastName, e.email,e.phone,e.employmentType, e.role.id, e.manager.id) " +

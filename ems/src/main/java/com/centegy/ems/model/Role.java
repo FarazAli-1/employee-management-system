@@ -15,7 +15,7 @@ import org.hibernate.annotations.SQLRestriction;
 @NoArgsConstructor
 @Entity
 @SQLDelete(sql = "UPDATE role SET is_active = false WHERE id=?")
-@SQLRestriction("is_active = true")
+//@SQLRestriction("is_active = true")
 public class Role {
 
     @Id

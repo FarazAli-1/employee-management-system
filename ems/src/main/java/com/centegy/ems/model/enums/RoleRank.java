@@ -1,5 +1,8 @@
 package com.centegy.ems.model.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum RoleRank {
     ADMIN(1),
     MANAGER(2),
@@ -11,7 +14,4 @@ public enum RoleRank {
         this.level = level;
     }
 
-    public int getLevel() {
-        return level;
-    }
 }

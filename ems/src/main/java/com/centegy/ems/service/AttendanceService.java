@@ -8,8 +8,10 @@ import com.centegy.ems.model.Attendance;
 import com.centegy.ems.model.Employee;
 import com.centegy.ems.model.enums.AttendanceStatus;
 import com.centegy.ems.repository.AttendanceRepository;
+import com.centegy.ems.security.SecurityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +37,7 @@ public class AttendanceService {
 
         Attendance attendance = attendanceMapper.toEntity(attendanceRequestDTO);
 
-        Employee realEmployee = employeeService.getEmployeeEntityByID(attendanceRequestDTO.getEmployeeId());
+        Employee realEmployee = employeeService.getEmployeeEntityByID(SecurityUtils.getCurrentUserId());
 
         attendance.setEmployee(realEmployee);
 
@@ -61,6 +63,11 @@ public class AttendanceService {
 
         Attendance attendance =  attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new RuntimeException("Attendance record not found!"));
+
+        if (!attendance.getEmployee().getId().equals(SecurityUtils.getCurrentUserId())) {
+            throw new RuntimeException("You can only checkout your own attendance");
+        }
+
         LocalTime endOfDay = LocalTime.of(17, 30);
 
         attendance.setCheckOutTime(checkOutTime);
@@ -91,16 +98,13 @@ public class AttendanceService {
         return  attendanceMapper.toAttendanceResponseDTO(attendance);
     }
 
-    public PageResponseDTO<AttendanceResponseDTO> findAll(int pageNo, int pageSize, String sortBy, String sortDir) {
+    public PageResponseDTO<AttendanceResponseDTO> findAll(Pageable pageable) {
 
-
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-
-        PageRequest pageRequest = PageRequest.of(pageNo, pageSize, sort);
-
-        Page<Attendance> attendancePage = attendanceRepository.findAll(pageRequest);
-        List<Attendance>  attendanceList = attendancePage.getContent();
-        List<AttendanceResponseDTO> content = attendanceList.stream().map(attendanceMapper::toAttendanceResponseDTO).toList();
+        Page<Attendance> attendancePage = attendanceRepository.findAll(pageable);
+        List<AttendanceResponseDTO> content = attendancePage.getContent()
+                .stream()
+                .map(attendanceMapper::toAttendanceResponseDTO)
+                .toList();
 
         PageResponseDTO<AttendanceResponseDTO> response = new PageResponseDTO<>();
 

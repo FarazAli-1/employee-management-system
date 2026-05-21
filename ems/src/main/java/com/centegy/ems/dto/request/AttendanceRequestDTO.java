@@ -20,9 +20,4 @@ public class AttendanceRequestDTO {
 
     private LocalTime checkOutTime;
 
-    @NotNull
-    private Long employeeId;
-
-
-
 }

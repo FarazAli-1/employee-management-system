@@ -13,8 +13,10 @@ import com.centegy.ems.model.Role;
 import com.centegy.ems.model.enums.AssetStatus;
 import com.centegy.ems.repository.AssetHistoryRepository;
 import com.centegy.ems.repository.AssetRepository;
+import com.centegy.ems.security.SecurityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +45,7 @@ public class AssetService {
 
         Asset asset = assetMapper.toEntity(assetRequestDTO);
 
-        Employee realEmployee = employeeService.getEmployeeEntityByID(assetRequestDTO.getEmployeeId());
+        Employee realEmployee = employeeService.getEmployeeEntityByID(SecurityUtils.getCurrentUserId());
         asset.setEmployee(realEmployee);
 
         if (asset.getStatus() == null ) {
@@ -54,15 +56,13 @@ public class AssetService {
 
     }
 
-    public PageResponseDTO<AssetResponseDTO> getAllAssets(int pageNo, int pageSize, String sortBy, String sortDir) {
+    public PageResponseDTO<AssetResponseDTO> getAllAssets(Pageable pageable) {
 
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-
-        PageRequest pageRequest = PageRequest.of(pageNo, pageSize, sort);
-
-        Page<Asset> assetPage = assetRepository.findAll(pageRequest);
-        List<Asset> assetsList = assetPage.getContent();
-        List<AssetResponseDTO> content = assetsList.stream().map(assetMapper::toAssetResponseDTO).toList();
+        Page<Asset> assetPage = assetRepository.findAll(pageable);
+        List<AssetResponseDTO> content = assetPage.getContent()
+                .stream()
+                .map(assetMapper::toAssetResponseDTO)
+                .toList();
 
         PageResponseDTO<AssetResponseDTO> response = new PageResponseDTO<>();
 
@@ -74,8 +74,6 @@ public class AssetService {
         response.setLast(assetPage.isLast());
 
         return response;
-
-
 
     }
 
@@ -92,37 +90,32 @@ public class AssetService {
         return assetMapper.toAssetResponseDTO(asset);
     }
 
-    public AssetResponseDTO updateAsset(Long id, AssetRequestDTO updatedData,Long performerID) {
-
+    public AssetResponseDTO updateAsset(Long id, AssetRequestDTO updatedData) {
 
         Asset asset = getAssetEntityById(id);
-        validateRoleStatus(performerID);
-
-        Employee Realemployee = employeeService.getEmployeeEntityByID(updatedData.getEmployeeId());
+        validateRoleStatus(SecurityUtils.getCurrentUserId());
 
         asset.setAssetName(updatedData.getAssetName());
         asset.setAssetType(updatedData.getAssetType());
-        asset.setEmployee(Realemployee);
-
 
         return assetMapper.toAssetResponseDTO(assetRepository.save(asset));
     }
 
-    public void deleteAsset(Long id, Long performerID) {
+    public void deleteAsset(Long id) {
 
-        validateRoleStatus(performerID);
+        validateRoleStatus(SecurityUtils.getCurrentUserId());
 
         if (!assetRepository.existsById(id)) {
             throw new RuntimeException("Cannot delete. Asset not found with ID: " + id);
         }
     }
 
-    public AssetResponseDTO returnAsset(Long id, Long employeeId) {
+    public AssetResponseDTO returnAsset(Long id) {
 
         Asset asset = getAssetEntityById(id);
 
 
-        if (asset.getEmployee() == null || !asset.getEmployee().getId().equals(employeeId)) {
+        if (asset.getEmployee() == null || !asset.getEmployee().getId().equals(SecurityUtils.getCurrentUserId())) {
                 throw new RuntimeException("Unauthorized: You cannot return an asset that is not assigned to you.");
         }
 
@@ -141,7 +134,7 @@ public class AssetService {
     }
 
 
-    public AssetResponseDTO approveAsset(Long id, Long approverId) {
+    public AssetResponseDTO approveAsset(Long id) {
         Asset asset = getAssetEntityById(id);
 
         if (asset.getEmployee() == null) {
@@ -151,9 +144,9 @@ public class AssetService {
             throw new RuntimeException("Invalid Action: You can only approve assets that are currently REQUESTED.");
         }
 
-        validateRoleStatus(approverId);
+        validateRoleStatus(SecurityUtils.getCurrentUserId());
 
-        Employee realEmployee = employeeService.getEmployeeEntityByID(approverId);
+        Employee realEmployee = employeeService.getEmployeeEntityByID(SecurityUtils.getCurrentUserId());
 
 
         asset.setStatus(AssetStatus.APPROVED);

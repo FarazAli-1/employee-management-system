@@ -21,6 +21,4 @@ public class SignUpRequestDTO {
     private Long roleId;
 
 
-
-
 }

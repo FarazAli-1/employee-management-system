@@ -7,6 +7,10 @@ import com.centegy.ems.dto.response.PageResponseDTO;
 import com.centegy.ems.model.Leave;
 import com.centegy.ems.service.LeaveService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,14 +30,18 @@ public class LeaveController {
         return leaveService.applyForLeave(leaveRequestDTO);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping
     public PageResponseDTO<LeaveResponseDTO> getAllLeaves(
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false)int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false)int pageSize,
-            @RequestParam(value = "sortBy", defaultValue = "id", required = false)String sortBy,
-            @RequestParam(value = "sortDir", defaultValue = "asc", required = false)String sortDir
+        @PageableDefault(
+                page = 0,
+                size = 10,
+                sort = "id",
+                direction = Sort.Direction.ASC
+        )
+        Pageable  pageable
     ) {
-        return leaveService.getAllLeaves(pageNo, pageSize, sortBy, sortDir);
+        return leaveService.getAllLeaves(pageable);
     }
 
     @GetMapping("/{id}")
@@ -41,15 +49,16 @@ public class LeaveController {
         return leaveService.getLeaveById(id);
     }
 
-    @GetMapping("/calender/{requesterId}")
-    public List<LeaveResponseDTO> getTeamCalender(@PathVariable Long requesterId) {
-        return leaveService.leaveCalender(requesterId);
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @GetMapping("/calender")
+    public List<LeaveResponseDTO> getTeamCalender() {
+        return leaveService.leaveCalender();
     }
 
    
-    @GetMapping("/employee/{EId}")
-    public List<LeaveResponseDTO> getLeaveByEmployeeId(@PathVariable Long EId) {
-        return leaveService.getAllLeavesByEmployeeId(EId);
+    @GetMapping("/employee")
+    public List<LeaveResponseDTO> getLeaveByEmployeeId() {
+        return leaveService.getAllLeavesByEmployeeId();
     }
 
     @PutMapping("/{id}")
@@ -57,14 +66,16 @@ public class LeaveController {
         return leaveService.updateLeave(id, leaveRequestDTO);
     }
 
+
     @DeleteMapping("/{id}")
     public void deleteLeave(@PathVariable Long id) {
         leaveService.deleteLeave(id);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PutMapping("/{id}/approve")
-    public LeaveResponseDTO approveLeave(@PathVariable Long id, @RequestParam Long managerId) {
-        return leaveService.approveLeave(id, managerId);
+    public LeaveResponseDTO approveLeave(@PathVariable Long id) {
+        return leaveService.approveLeave(id);
     }
 
 

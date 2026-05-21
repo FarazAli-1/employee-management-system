@@ -7,6 +7,10 @@ import com.centegy.ems.dto.response.PageResponseDTO;
 import com.centegy.ems.model.Attendance;
 import com.centegy.ems.service.AttendanceService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalTime;
@@ -27,14 +31,18 @@ public class AttendanceController {
         return attendanceService.checkIn(attendance);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping
     public PageResponseDTO<AttendanceResponseDTO> getAllAttendances(
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
-            @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
-            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir
+         @PageableDefault(
+                 page = 0,
+                 size = 10,
+                 sort = "id",
+                 direction = Sort.Direction.ASC
+         )
+         Pageable pageable
     ) {
-        return attendanceService.findAll(pageNo, pageSize, sortBy, sortDir);
+        return attendanceService.findAll(pageable);
     }
 
     @GetMapping("/{id}")
@@ -51,6 +59,7 @@ public class AttendanceController {
     public AttendanceResponseDTO checkOut(@PathVariable Long id, @RequestParam LocalTime checkOutTime) {
         return attendanceService.checkOut(id, checkOutTime);
     }
+
     @DeleteMapping("/{id}")
     public void deleteAttendance(@PathVariable Long id) {
         attendanceService.deleteAttendanceById(id);
