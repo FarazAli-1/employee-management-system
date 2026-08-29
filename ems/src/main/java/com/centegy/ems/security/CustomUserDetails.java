@@ -44,6 +44,11 @@ public class CustomUserDetails implements UserDetails {
         return employee.getEmail();
     }
 
+    @Override
+    public boolean isEnabled() {
+        return employee.isActive();
+    }
+
 //    @Override
 //    public boolean isAccountNonExpired() {
 //        return true;
@@ -59,10 +64,5 @@ public class CustomUserDetails implements UserDetails {
 //            return true;
 //    }
 //
-    @Override
-    public boolean isEnabled() {
-        return employee.isActive();
-    }
-
 
 }
